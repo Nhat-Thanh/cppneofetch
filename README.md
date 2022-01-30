@@ -11,6 +11,7 @@ You can config what you want to show on the screen or change the logo (except im
 - g++
 
 ## Install
+If you are using debian based distro you need to uncomment line 42th and comment line 43th befor install.
 
 ```
 sudo make install
