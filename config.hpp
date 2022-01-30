@@ -28,7 +28,7 @@ typedef struct {
     bool show;
 } info;
 
-const info SPACE = {"", "", true, true};
+const info SPACE = {"", "", true};
 
 static std::vector<info> CONFIG = {
     // Name          data                   show

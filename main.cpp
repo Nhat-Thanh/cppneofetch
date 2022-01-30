@@ -1,4 +1,4 @@
-#include "logos/logos.hpp"
+#include "logos.hpp"
 #include "cppneofetch.hpp"
 #include "config.hpp"
 
