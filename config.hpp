@@ -25,30 +25,30 @@
 typedef struct {
     std::string name;
     std::string data;
-    bool cached;
     bool show;
 } info;
 
 const info SPACE = {"", "", true, true};
 
 static std::vector<info> CONFIG = {
-    // Name          data                   cached  show
-    {"",             get_userhost(),        true,   true},
-    {"",             get_bar(),             true,   true},
-    {"OS: ",         get_os(),              true,   true},
-    {"Model: ",      get_model(),           true,   true},
-    {"Kernel: ",     get_kernel(),          false,  true},
-    {"Uptime: ",     get_uptime(),          false,  true},
+    // Name          data                   show
+    {"",             get_userhost(),        true},
+    {"",             get_bar(),             true},
+    {"OS: ",         get_os(),              true},
+    {"Model: ",      get_model(),           true},
+    {"Kernel: ",     get_kernel(),          true},
+    {"Uptime: ",     get_uptime(),          true},
     SPACE, 
-    {"Packages: ",   get_packages_pacman(), false,  true},
-    {"Shell: ",      get_shell(),           false,  true},
-    {"Resolution: ", get_resolution(),      false,  true},
-    {"Terminal: ",   get_terminal(),        false,  true},
+    // {"Packages: ",   get_packages_apt(),    true},
+    {"Packages: ",   get_packages_pacman(), true},
+    {"Shell: ",      get_shell(),           true},
+    {"Resolution: ", get_resolution(),      true},
+    {"Terminal: ",   get_terminal(),        true},
     SPACE,      
-    {"CPU: ",        get_cpu(),             true,   true},
-    {"Memory: ",     get_memory(),          false,  true},
+    {"CPU: ",        get_cpu(),             true},
+    {"Memory: ",     get_memory(),          true},
     SPACE,      
-    {"",             get_colorbar(),        true,   true}
+    {"",             get_colorbar(),        true}
 };
 
 #endif

@@ -1,6 +1,7 @@
 // This was stolen from neofetch
 #include <vector>
 #include <string>
+
 std::vector<std::string> LOGO =  {
 " TTTTTTTTTTTT hhhh                                   hhhh          ",
 " T::::::::::T h::h                                   h::h          ",
@@ -20,7 +21,7 @@ std::vector<std::string> LOGO =  {
 "   TTTTTTTT   hhhh   hhhh   aaaaaaaa aaa nnnn   nnnn hhhh   hhhh   "
 };
 
-// std::vector<std::string>  LOGO[] = {
+// std::vector<std::string>  LOGO = {
 //     "                     .%;888:8898898:              ",
 //     "                   x;XxXB%89b8:b8%b88:            ",
 //     "                .8Xxd                8X:.         ",
@@ -40,7 +41,7 @@ std::vector<std::string> LOGO =  {
 //     "            .d988999889889899dd.                  "
 // };
 
-// std::vector<std::string> LOGO[] = {
+// std::vector<std::string> LOGO = {
 //     "                  -`                    ",
 //     "                 .o+`                   ",
 //     "                `ooo/                   ",
@@ -60,4 +61,5 @@ std::vector<std::string> LOGO =  {
 //     " `+sso+:-`                 `.-/+oso:    ",
 //     "`++:.                           `-/+/   ",
 //     ".`                                 `/   "
-// }
+// };
+

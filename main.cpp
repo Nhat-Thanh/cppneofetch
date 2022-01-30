@@ -31,4 +31,7 @@ int main(int argc, char** argv) {
         std::cout << '\n';
         limit -= 1;
     }
+    
+    std::cout << '\n';    
+    return 0;
 }

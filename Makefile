@@ -1,4 +1,4 @@
-
+PREFIX := "/usr"
 build:
 	g++ main.cpp			\
 		cppneofetch.cpp 	\
@@ -8,6 +8,7 @@ build:
 		-lX11 				\
 		-O2 -Wall -Wextra  	\
 		-o cppneofetch 
+	strip cppneofetch
 
 
 debug:
@@ -21,4 +22,9 @@ debug:
 		-o cppneofetch 
 
 run:
-	./cppneofetch 
+	./cppneofetch
+
+install: build
+	mkdir -p $(PREFIX)/bin
+	install ./cppneofetch $(PREFIX)/bin/cppneofetch
+	

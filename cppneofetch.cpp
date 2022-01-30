@@ -199,7 +199,14 @@ char* get_packages_pacman() {
 }
 
 char* get_packages_apt() {
-    return get_packages("/var/lib/apt/local", "apt");
+    int num_packages = 0;
+
+    FILE *proc = popen("dpkg -l | grep -c '^ii'", "r");
+    fscanf(proc, "%d", &num_packages);
+
+    char *packages = (char*)malloc(BUFFER_SIZE);
+    snprintf(packages, BUFFER_SIZE, "%d (%s)", num_packages, "dpkg");
+    return packages;
 }
 
 char* get_shell() {
@@ -276,8 +283,8 @@ char* get_cpu() {
     if (ifs == NULL)
         check_status(-1, "unabel to open /proc/cpuinfo");
     
-    char* cpu_name = (char*)malloc(BUFFER_SIZE / 2);
-    char* max_freq = (char*)malloc(BUFFER_SIZE / 2);
+    char* cpu_name = (char*)malloc(BUFFER_SIZE);
+    char* max_freq = (char*)malloc(BUFFER_SIZE);
     int num_cores = 0;
     char* line;
     size_t len;
