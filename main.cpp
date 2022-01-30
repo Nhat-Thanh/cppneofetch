@@ -1,4 +1,4 @@
-#include "logos/garuda.hpp"
+#include "logos/logos.hpp"
 #include "cppneofetch.hpp"
 #include "config.hpp"
 
