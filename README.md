@@ -20,6 +20,11 @@ If you are using debian based distro you need to uncomment line 42th and comment
 sudo make install
 ```
 
+## Run:
+```
+cppneofetch
+```
+
 ## Custom logo
 
 I use a std::string data type vector to store the logo, you can also uncomment any LOGO or create a LOGO for yourself to use (make sure your LOGO has the same pattern as mine).
