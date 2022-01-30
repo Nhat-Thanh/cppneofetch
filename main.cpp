@@ -1,6 +1,6 @@
-#include "logos.hpp"
-#include "cppneofetch.hpp"
 #include "config.hpp"
+#include "cppneofetch.hpp"
+#include "logos.hpp"
 
 #include <iostream>
 
@@ -11,9 +11,9 @@ int main(int argc, char** argv) {
 
     int idx_logo = 0;
     int idx_config = 0;
-    
+
     while (limit > 0) {
-        
+
         if (idx_logo < len_logo) {
             std::cout << "\e[0m" << CYAN << LOGO[idx_logo];
             idx_logo += 1;
@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
             std::string spaces(LOGO[0].size(), ' ');
             std::cout << "\e[0m" << spaces;
         }
-        
+
         if (idx_config < len_config && CONFIG[idx_config].show) {
             std::cout << CYAN << CONFIG[idx_config].name;
             std::cout << "\e[0m" << CONFIG[idx_config].data;
@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
         std::cout << '\n';
         limit -= 1;
     }
-    
-    std::cout << '\n';    
+
+    std::cout << '\n';
     return 0;
 }

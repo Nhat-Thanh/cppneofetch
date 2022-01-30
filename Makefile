@@ -19,7 +19,7 @@ debug:
 		-Ilogos				\
 		-lX11 				\
 		-O2 -Wall -Wextra  	\
-		-o cppneofetch 
+		-o main 
 
 run:
 	./cppneofetch
