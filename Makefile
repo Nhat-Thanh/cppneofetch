@@ -1,4 +1,4 @@
-PREFIX := "/usr"
+PREFIX := ~/.local
 build:
 	g++ main.cpp			\
 		cppneofetch.cpp 	\
