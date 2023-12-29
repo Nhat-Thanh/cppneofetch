@@ -38,16 +38,19 @@ static std::vector<info> CONFIG = {
     {"Model: ",      get_model(),           true},
     {"Kernel: ",     get_kernel(),          true},
     {"Uptime: ",     get_uptime(),          true},
-    SPACE, 
-    // {"Packages: ",   get_packages_apt(),    true},
+    SPACE,
+#if defined (DEBIAN_BASE)
+	{"Packages: ",   get_packages_apt(),    true},
+#elif defined (ARCH_BASE)
     {"Packages: ",   get_packages_pacman(), true},
+#endif
     {"Shell: ",      get_shell(),           true},
     {"Resolution: ", get_resolution(),      true},
     {"Terminal: ",   get_terminal(),        true},
-    SPACE,      
+    SPACE,
     {"CPU: ",        get_cpu(),             true},
     {"Memory: ",     get_memory(),          true},
-    SPACE,      
+    SPACE,
     {"",             get_colorbar(),        true}
 };
 

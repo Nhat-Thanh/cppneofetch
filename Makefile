@@ -1,4 +1,5 @@
 PREFIX := "/usr"
+LINUX_BASE := "ARCH_BASE"
 build:
 	g++ main.cpp			\
 		cppneofetch.cpp 	\
@@ -6,8 +7,9 @@ build:
 		config.hpp 			\
 		-Ilogos				\
 		-lX11 				\
+		-D${LINUX_BASE}  	\
 		-O2 -Wall -Wextra  	\
-		-o cppneofetch 
+		-o cppneofetch
 	strip cppneofetch
 
 
@@ -18,8 +20,9 @@ debug:
 		config.hpp 			\
 		-Ilogos				\
 		-lX11 				\
-		-O2 -Wall -Wextra  	\
-		-o main 
+		-D${LINUX_BASE}  	\
+		-Wall -Wextra 		\
+		-o cppneofetch
 
 run:
 	./cppneofetch
