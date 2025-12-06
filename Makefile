@@ -1,5 +1,5 @@
-PREFIX := "/usr"
-LINUX_BASE := "ARCH_BASE"
+PREFIX ?= "/usr"
+LINUX_BASE ?= "ARCH_BASE"
 build:
 	g++ main.cpp			\
 		cppneofetch.cpp 	\
