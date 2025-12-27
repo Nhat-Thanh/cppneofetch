@@ -1,12 +1,15 @@
+#ifndef _LOGO_HPP_
+#define _LOGO_HPP_
+
 #include <string>
 #include <vector>
 
 /* For custom logo */
-// std::vector<std::string> LOGO = {
+// std::vector<std::string> vecstr_Logo = {
 
 // };
 
-std::vector<std::string> LOGO = {
+std::vector<std::string> vecstr_Logo = {
     " TTTTTTTTTTTT hhhh                                   hhhh         ",
     " T::::::::::T h::h                                   h::h         ",
     " T::::::::::T h::h                                   h::h         ",
@@ -25,7 +28,7 @@ std::vector<std::string> LOGO = {
     "   TTTTTTTT   hhhh   hhhh   aaaaaaaa aaa nnnn   nnnn hhhh   hhhh  "
 };
 
-// std::vector<std::string>  LOGO = {
+// std::vector<std::string>  vecstr_Logo = {
 //     "                     .%;888:8898898:              ",
 //     "                   x;XxXB%89b8:b8%b88:            ",
 //     "                .8Xxd                8X:.         ",
@@ -45,9 +48,9 @@ std::vector<std::string> LOGO = {
 //     "            .d988999889889899dd.                  "
 // };
 
-// These was stolen from paleofetch
+// Source: paleofetch
 
-// std::vector<std::string> LOGO = {
+// std::vector<std::string> vecstr_Logo = {
 //     "                  -`                    ",
 //     "                 .o+`                   ",
 //     "                `ooo/                   ",
@@ -70,8 +73,8 @@ std::vector<std::string> LOGO = {
 // };
 
 //
-// made by Reddit user LnLcFlx2
-// std::vector<std::string>  LOGO = {
+// Made by Reddit user LnLcFlx2
+// std::vector<std::string>  vecstr_Logo = {
 // "                   ▄                     ",
 // "                  ▟█▙                    ",
 // "                 ▟███▙                   ",
@@ -92,3 +95,5 @@ std::vector<std::string> LOGO = {
 // "  ▟███▀▘                       ▝▀███▙    ",
 // " ▟▛▀                               ▀▜▙   "
 // };
+
+#endif
