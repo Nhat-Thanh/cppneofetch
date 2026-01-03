@@ -129,7 +129,7 @@ int main() {
 
     while (ui64_InfoRow < vecstr_Infos.size() || ui64_LogoRow < vecstr_Logo.size()) {
         if (ui64_InfoRow == vecstr_Infos.size()) {
-            std::cout << vecstr_Logo[ui64_LogoRow] << std::endl;
+            std::cout << CYAN << vecstr_Logo[ui64_LogoRow] << std::endl;
             ++ui64_LogoRow;
 
         } else if (ui64_LogoRow == vecstr_Logo.size()) {
