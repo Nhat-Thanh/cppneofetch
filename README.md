@@ -1,5 +1,4 @@
 # cppneofetch
-This Repo inspired from [ss7m/paleofetch](https://github.com/ss7m/paleofetch/)
 
 You can config what you want to show on the screen or change the logo (except images).
 
@@ -9,71 +8,91 @@ You can config what you want to show on the screen or change the logo (except im
 
 ## Requirement
 
-- libx11
 - make
 - g++
 
-## Install
-If you are using debian based distro you need to uncomment line 42th and comment line 43th in [config.hpp](https://github.com/Nhat-Thanh/cppneofetch/blob/main/config.hpp) before installation.
+## Build
+```
+make build
+```
 
+
+## Install
+
+Install to your /usr/bin system 
 ```
 sudo make install
 ```
 
-## Run:
+if you don't want to install it at system level, pass your user level ```bin``` directory (like ```~/.local``` or similar ones) to the install command like below.
+NOTE: Make sure that your user level bin path is in the $PATH as well.
+```
+make install PREFIX="your path"
+```
+
+## Run
+
+After built via make command, you can see your output by running below comamnd
+```
+make run
+```
+
+if you run ```make install``` before, you can call the binary on your terminal directly.
+
 ```
 cppneofetch
 ```
 
 ## Custom logo
 
-I use a std::string data type vector to store the logo, you can also uncomment any LOGO or create a LOGO for yourself to use (make sure your LOGO has the same pattern as mine).
+I defined the logo as a vector of ***same length*** ```std::string``` instances and you can change your custom one in [Utils/Logo.hpp](https://github.com/Nhat-Thanh/cppneofetch/blob/main/Utils/Logo.hpp).
+There will only a ```vecstr_Logo```, you need to keeps yours and comment others.
 
-If I have a logo like this:
+For instance, if I have a logo like this:
 
 ```
-TTTTTTTTTTTT hhhh                                   hhhh
-T::::::::::T h::h                                   h::h
-T::::::::::T h::h                                   h::h
-T:TT::::TT:T h::h                                   h::h
-TT  T::T  TT h::h          aaaaaaaaa   nnn  nnnnnn  h::h
-    T::T     h:::hhh       a::::::::a  n::nn::::::n h:::hhh
-    T::T     h::::::hh     aaaaaaa:::a n::::::::::n h::::::hh
-    T::T     h::::h:::h           a::a nn:::::::::n h::::h:::h
-    T::T     h:::h h:::h    aaaaaa:::a  n:::nnn:::n h:::h h:::h
-    T::T     h::h   h::h   a:::::::::a  n::n   n::n h::h   h::h
-    T::T     h::h   h::h  a::aaaa::::a  n::n   n::n h::h   h::h
-    T::T     h::h   h::h a::a    a:::a  n::n   n::n h::h   h::h
-  TT::::TT   h::h   h::h a::a    a:::a  n::n   n::n h::h   h::h
-  T::::::T   h::h   h::h a:::aaaa::::a  n::n   n::n h::h   h::h
-  T::::::T   h::h   h::h  a::::::::a::a n::n   n::n h::h   h::h
-  TTTTTTTT   hhhh   hhhh   aaaaaaaa aaa nnnn   nnnn hhhh   hhhh
+                  -`                 
+                 .o+`                
+                `ooo/                
+               `+oooo:               
+              `+oooooo:              
+              -+oooooo+:             
+            `/:-:++oooo+:            
+           `/++++/+++++++:           
+          `/++++++++++++++:          
+         `/+++ooooooooooooo/`        
+        ./ooosssso++osssssso+`       
+       .oossssso-````/ossssss+`      
+      -osssssso.      :ssssssso.     
+     :osssssss/        osssso+++.    
+    /ossssssss/        +ssssooo/-    
+  `/ossssso+/:-        -:/+osssso+-  
+ `+sso+:-`                 `.-/+oso: 
+`++:.                           `-/+/
+.`                                 `/
 ```
-After pasting it to [logo.hpp](https://github.com/Nhat-Thanh/cppneofetch/blob/main/logos.hpp), it pattern like this:
+After pasted it to [Utils/Logo.hpp](https://github.com/Nhat-Thanh/cppneofetch/blob/main/Utils/Logo.hpp), it will look like this:
 ```
-std::vector<std::string> LOGO = {
-" TTTTTTTTTTTT hhhh                                   hhhh         ",
-" T::::::::::T h::h                                   h::h         ",
-" T::::::::::T h::h                                   h::h         ",
-" T:TT::::TT:T h::h                                   h::h         ",
-" TT  T::T  TT h::h          aaaaaaaaa   nnn  nnnnnn  h::h         ",
-"     T::T     h:::hhh       a::::::::a  n::nn::::::n h:::hhh      ",
-"     T::T     h::::::hh     aaaaaaa:::a n::::::::::n h::::::hh    ",
-"     T::T     h::::h:::h           a::a nn:::::::::n h::::h:::h   ",
-"     T::T     h:::h h:::h    aaaaaa:::a  n:::nnn:::n h:::h h:::h  ",
-"     T::T     h::h   h::h   a:::::::::a  n::n   n::n h::h   h::h  ",
-"     T::T     h::h   h::h  a::aaaa::::a  n::n   n::n h::h   h::h  ",
-"     T::T     h::h   h::h a::a    a:::a  n::n   n::n h::h   h::h  ",
-"   TT::::TT   h::h   h::h a::a    a:::a  n::n   n::n h::h   h::h  ",
-"   T::::::T   h::h   h::h a:::aaaa::::a  n::n   n::n h::h   h::h  ",
-"   T::::::T   h::h   h::h  a::::::::a::a n::n   n::n h::h   h::h  ",
-"   TTTTTTTT   hhhh   hhhh   aaaaaaaa aaa nnnn   nnnn hhhh   hhhh  "
+std::vector<std::string> vecstr_Logo = {
+    "                  -`                   ",
+    "                 .o+`                  ",
+    "                `ooo/                  ",
+    "               `+oooo:                 ",
+    "              `+oooooo:                ",
+    "              -+oooooo+:               ",
+    "            `/:-:++oooo+:              ",
+    "           `/++++/+++++++:             ",
+    "          `/++++++++++++++:            ",
+    "         `/+++ooooooooooooo/`          ",
+    "        ./ooosssso++osssssso+`         ",
+    "       .oossssso-````/ossssss+`        ",
+    "      -osssssso.      :ssssssso.       ",
+    "     :osssssss/        osssso+++.      ",
+    "    /ossssssss/        +ssssooo/-      ",
+    "  `/ossssso+/:-        -:/+osssso+-    ",
+    " `+sso+:-`                 `.-/+oso:   ",
+    "`++:.                           `-/+/  ",
+    ".`                                 `/  "
 };
 ```
-You must also comment other LOGO in [logo.hpp](https://github.com/Nhat-Thanh/cppneofetch/blob/main/logos.hpp).
-
-## References
-- [ss7m/paleofetch](https://github.com/ss7m/paleofetch/)
-- [storsui/paleofetch-debian-arch](https://github.com/storsui/paleofetch-debian-arch)
-
-
+Remember to comment other logos the file.
