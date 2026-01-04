@@ -24,7 +24,7 @@ public:
      *
      * @return A std::string - The package manager name
      */
-    std::string fstr_GetName();
+    std::string fstr_GetName() const;
 
     /**
      * @brief Get the count of installed packages
@@ -33,11 +33,11 @@ public:
      *
      * @return An uint32_t number - The count of installed packages
      */
-    uint32_t fui32_CountPkgs();
+    uint32_t fui32_CountPkgs() const;
 
 private:
-    std::string mstr_Name;
-    uint32_t (*mpfui32_PkgCounter)();
+    mutable std::string mstr_Name;
+    mutable uint32_t (*mpfui32_PkgCounter)();
 };
 
 #endif

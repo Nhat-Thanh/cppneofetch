@@ -12,14 +12,14 @@ COsInfo::COsInfo():
     mui64_Uptime(UINT64_INIT) {
 }
 
-std::string COsInfo::fstr_GetName() {
+std::string COsInfo::fstr_GetName() const {
     if (mstr_Name.empty()) {
         _fv_ReadOsReleaseFs();
     }
     return mstr_Name;
 }
 
-std::string COsInfo::fstr_GetKernel() {
+std::string COsInfo::fstr_GetKernel() const {
     if (mstr_Kernel.empty()) {
         struct utsname utsname_Info;
         if (SYSCALL_SUCCESS == uname(&utsname_Info)) {
@@ -29,7 +29,7 @@ std::string COsInfo::fstr_GetKernel() {
     return mstr_Kernel;
 }
 
-uint64_t COsInfo::fui64_GetUptime() {
+uint64_t COsInfo::fui64_GetUptime() const {
     struct sysinfo SystemInfo;
     if (SYSCALL_SUCCESS == sysinfo(&SystemInfo)) {
         typedef struct {
@@ -41,7 +41,7 @@ uint64_t COsInfo::fui64_GetUptime() {
     return mui64_Uptime;
 }
 
-std::string COsInfo::fstr_GetShell() {
+std::string COsInfo::fstr_GetShell() const {
     if (mstr_Shell.empty()) {
         _fv_ReadShellFs();
     }
@@ -49,7 +49,7 @@ std::string COsInfo::fstr_GetShell() {
 }
 
 
-void COsInfo::_fv_ReadOsReleaseFs() {
+void COsInfo::_fv_ReadOsReleaseFs() const {
     std::vector<std::string> vecstr_Lines;
     std::string str_Keyword = "PRETTY_NAME=";
     CFileReader::fi64_FindLine(vecstr_Lines, PATH_OSRELEASE_VFS, str_Keyword);
@@ -57,7 +57,7 @@ void COsInfo::_fv_ReadOsReleaseFs() {
     CStringHelper::fv_Trim(mstr_Name, CHAR_QUOTE);
 }
 
-void COsInfo::_fv_ReadShellFs() {
+void COsInfo::_fv_ReadShellFs() const {
     CFileReader::fi64_GetLine_nth(mstr_Shell, CStringHelper::fstr_Format(PATH_PROC_COMM_FORMAT, getppid()));
 }
 

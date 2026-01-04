@@ -25,7 +25,7 @@ public:
      *
      * @return A std::string - The CPU name
      */
-    std::string fstr_GetName();
+    std::string fstr_GetName() const;
 
     /**
      * @brief Get the id of CPU
@@ -34,7 +34,7 @@ public:
      *
      * @return An uint32_t number - The CPU ID
      */
-    uint32_t fui32_GetCpuId();
+    uint32_t fui32_GetCpuId() const;
 
     /**
      * @brief Get the maximum freqency of CPU
@@ -45,7 +45,7 @@ public:
      *
      * @return An uint32_t number - The maximum CPU freqency or 0xFFFFFFFF on errors
      */
-    uint32_t fui32_GetMaxFreq();
+    uint32_t fui32_GetMaxFreq() const;
 
     /**
      * @brief Get the minimum freqency of CPU
@@ -56,7 +56,7 @@ public:
      *
      * @return An uint32_t number - The minimum CPU freqency or 0xFFFFFFFF on errors
      */
-    uint32_t fui32_GetMinFreq();
+    uint32_t fui32_GetMinFreq() const;
 
     /**
      * @brief Get the cache size of CPU
@@ -67,7 +67,7 @@ public:
      *
      * @return An uint32_t number - CPU cache size in kB or 0xFFFFFFFF on errors
      */
-    uint32_t fui32_GetCache();
+    uint32_t fui32_GetCache() const;
 
     /**
      * @brief Get the number of CPU logical cores
@@ -78,7 +78,7 @@ public:
      *
      * @return An uint32_t number - The number of CPU logical cores or 0xFFFFFFFF on errors
      */
-    uint32_t fui32_GetLogicalCores();
+    uint32_t fui32_GetLogicalCores() const;
 
     /**
      * @brief Get the number of CPU physical cores
@@ -89,7 +89,7 @@ public:
      *
      * @return An uint32_t number - The number of CPU physical cores or 0xFFFFFFFF on errors
      */
-    uint32_t fui32_GetPhysicalCores();
+    uint32_t fui32_GetPhysicalCores() const;
 
 private:
     /**
@@ -99,7 +99,7 @@ private:
      *
      * @return None
      */
-    void _fv_ReadCpuInfoFS();
+    void _fv_ReadCpuInfoFS() const;
 
     /**
      * @brief Read cpu_max_freq filesystem and get the maximum frequency
@@ -108,7 +108,7 @@ private:
      *
      * @return None
      */
-    void _fv_ReadCpuMaxFreqFS();
+    void _fv_ReadCpuMaxFreqFS(uint32_t ui32_Processor) const;
 
     /**
      * @brief Read cpu_mix_freq filesystem and get the minimum frequency
@@ -117,19 +117,15 @@ private:
      *
      * @return None
      */
-    void _fv_ReadCpuMinFreqFS();
+    void _fv_ReadCpuMinFreqFS(uint32_t ui32_Processor) const;
 
-    std::string mstr_Name;
-    uint32_t mui32_CpuId;
-    uint32_t mui32_MaxFreq;
-    uint32_t mui32_MinFreq;
-    uint32_t mui32_Cache;
-    uint32_t mui32_LogicalCores;
-    uint32_t mui32_PhysicalCores;
-
-    // These variables will be gotten from cpuinfo file and used to get min/max freq
-    uint32_t mui32_ReadPhysicalId;
-    uint32_t mui32_ReadProcessor0;
+    mutable std::string mstr_Name;
+    mutable uint32_t mui32_CpuId;
+    mutable uint32_t mui32_MaxFreq;
+    mutable uint32_t mui32_MinFreq;
+    mutable uint32_t mui32_Cache;
+    mutable uint32_t mui32_LogicalCores;
+    mutable uint32_t mui32_PhysicalCores;
 };
 
 #endif

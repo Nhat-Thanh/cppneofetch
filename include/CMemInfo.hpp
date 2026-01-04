@@ -23,7 +23,7 @@ public:
      *
      * @return An uint32_t number - The total memory
      */
-    uint32_t fui32_GetTotal();
+    uint32_t fui32_GetTotal() const;
 
     /**
      * @brief Get current available memory
@@ -32,7 +32,7 @@ public:
      *
      * @return An uint32_t number - The current available memory
      */
-    uint32_t fui32_GetAvailable();
+    uint32_t fui32_GetAvailable() const;
 
     /**
      * @brief Get current free memory
@@ -41,7 +41,7 @@ public:
      *
      * @return An uint32_t number - The current free memory
      */
-    uint32_t fui32_GetFree();
+    uint32_t fui32_GetFree() const;
 
     /**
      * @brief Get current used memory
@@ -50,7 +50,7 @@ public:
      *
      * @return An uint32_t number - The used memory
      */
-    uint32_t fui32_GetUsed();
+    uint32_t fui32_GetUsed() const;
 
     /**
      * @brief Get shared memory size
@@ -59,7 +59,7 @@ public:
      *
      * @return An uint32_t number - The shared memory size
      */
-    uint32_t fui32_GetShmem();
+    uint32_t fui32_GetShmem() const;
 
     /**
      * @brief Get buffer memory
@@ -68,7 +68,7 @@ public:
      *
      * @return An uint32_t number - The buffer size
      */
-    uint32_t fui32_GetBuffers();
+    uint32_t fui32_GetBuffers() const;
 
     /**
      * @brief Get cache size
@@ -77,7 +77,7 @@ public:
      *
      * @return An uint32_t number - The cache size
      */
-    uint32_t fui32_GetCached();
+    uint32_t fui32_GetCached() const;
 
     /**
      * @brief Get system swap size
@@ -86,7 +86,7 @@ public:
      *
      * @return An uint32_t number - The system swap size
      */
-    uint32_t fui32_GetTotalSwap();
+    uint32_t fui32_GetTotalSwap() const;
 
     /**
      * @brief Get current free system swap
@@ -95,7 +95,7 @@ public:
      *
      * @return An uint32_t number - The current free system swap
      */
-    uint32_t fui32_GetFreeSwap();
+    uint32_t fui32_GetFreeSwap() const;
 
     /**
      * @brief Get current reclaimable memory in kernel
@@ -104,7 +104,7 @@ public:
      *
      * @return An uint32_t number - The size of current reclaimable memory in kernel
      */
-    uint32_t fui32_GetKReclaimable();
+    uint32_t fui32_GetKReclaimable() const;
 
     /**
      * @brief Get reclaimable shared memory
@@ -113,7 +113,7 @@ public:
      *
      * @return An uint32_t number - The reclaimable size of shared memory
      */
-    uint32_t fui32_GetSReclaimable();
+    uint32_t fui32_GetSReclaimable() const;
 
     /**
      * @brief Get the stack size of kernel
@@ -122,7 +122,7 @@ public:
      *
      * @return An uint32_t number - The stack size of kernel
      */
-    uint32_t fui32_GetKernelStack();
+    uint32_t fui32_GetKernelStack() const;
 
     /**
      * @brief Get page table size
@@ -131,7 +131,7 @@ public:
      *
      * @return An uint32_t number - The page table size
      */
-    uint32_t fui32_GetPageTables();
+    uint32_t fui32_GetPageTables() const;
 
     /**
      * @brief Get the total size of virtual allocated memory
@@ -140,7 +140,7 @@ public:
      *
      * @return An uint32_t number - the total size of virtual allocated memory
      */
-    uint32_t fui32_GetVmallocTotal();
+    uint32_t fui32_GetVmallocTotal() const;
 
     /**
      * @brief Get the host name
@@ -149,7 +149,7 @@ public:
      *
      * @return a string of the host name
      */
-    uint32_t fui32_GetVmallocUsed();
+    uint32_t fui32_GetVmallocUsed() const;
 
     /**
      * @brief Get chunk size of virtual allocated memory
@@ -158,7 +158,7 @@ public:
      *
      * @return An uint32_t number - The chunk size of virtual allocated memory
      */
-    uint32_t fui32_GetVmallocChunk();
+    uint32_t fui32_GetVmallocChunk() const;
 
 
 private:
@@ -169,23 +169,23 @@ private:
      *
      * @return None
      */
-    void _fv_ReadMemInfoFs();
+    void _fv_ReadMemInfoFs() const;
 
-    uint32_t mui32_Total;
-    uint32_t mui32_Available;
-    uint32_t mui32_Free;
-    uint32_t mui32_Shmem;
-    uint32_t mui32_Buffers;
-    uint32_t mui32_Cached;
-    uint32_t mui32_TotalSwap;
-    uint32_t mui32_FreeSwap;
-    uint32_t mui32_KReclaimable;
-    uint32_t mui32_SReclaimable;
-    uint32_t mui32_KernelStack;
-    uint32_t mui32_PageTables;
-    uint32_t mui32_VmallocTotal;
-    uint32_t mui32_VmallocUsed;
-    uint32_t mui32_VmallocChunk;
+    mutable uint32_t mui32_Total;
+    mutable uint32_t mui32_Available;
+    mutable uint32_t mui32_Free;
+    mutable uint32_t mui32_Shmem;
+    mutable uint32_t mui32_Buffers;
+    mutable uint32_t mui32_Cached;
+    mutable uint32_t mui32_TotalSwap;
+    mutable uint32_t mui32_FreeSwap;
+    mutable uint32_t mui32_KReclaimable;
+    mutable uint32_t mui32_SReclaimable;
+    mutable uint32_t mui32_KernelStack;
+    mutable uint32_t mui32_PageTables;
+    mutable uint32_t mui32_VmallocTotal;
+    mutable uint32_t mui32_VmallocUsed;
+    mutable uint32_t mui32_VmallocChunk;
 };
 
 #endif

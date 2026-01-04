@@ -23,7 +23,7 @@ public:
      *
      * @return A std::string - The product name
      */
-    std::string fstr_GetName();
+    std::string fstr_GetName() const;
 
     /**
      * @brief Get product family name
@@ -32,7 +32,7 @@ public:
      *
      * @return A std::string - The product family name
      */
-    std::string fstr_GetFamily();
+    std::string fstr_GetFamily() const;
 
     /**
      * @brief Get product SKU
@@ -41,7 +41,7 @@ public:
      *
      * @return A std::string - The product SKU
      */
-    std::string fstr_GetSku();
+    std::string fstr_GetSku() const;
 
     /**
      * @brief Get product vendor name
@@ -50,7 +50,7 @@ public:
      *
      * @return A std::string - The product vendor name
      */
-    std::string fstr_GetVendor();
+    std::string fstr_GetVendor() const;
 
     /**
      * @brief Get product version name
@@ -59,7 +59,7 @@ public:
      *
      * @return A std::string - The product version name
      */
-    std::string fstr_GetVersion();
+    std::string fstr_GetVersion() const;
 
     #ifdef SYSTEM_INSTALL
 
@@ -70,7 +70,7 @@ public:
      *
      * @return A std::string - The product serial number
      */
-    std::string fstr_GetSerial();
+    std::string fstr_GetSerial() const;
 
     /**
      * @brief Get product uuid number
@@ -79,18 +79,18 @@ public:
      *
      * @return A std::string - The product uuid number
      */
-    std::string fstr_GetUuid();
+    std::string fstr_GetUuid() const;
     #endif // SYSTEM_INSTALL
 
 private:
-    std::string mstr_Name;
-    std::string mstr_Family;
-    std::string mstr_Sku;
-    std::string mstr_Vendor;
-    std::string mstr_Version;
+    mutable std::string mstr_Name;
+    mutable std::string mstr_Family;
+    mutable std::string mstr_Sku;
+    mutable std::string mstr_Vendor;
+    mutable std::string mstr_Version;
     #ifdef SYSTEM_INSTALL
-    std::string mstr_Serial;
-    std::string mstr_Uuid;
+    mutable std::string mstr_Serial;
+    mutable std::string mstr_Uuid;
     #endif // SYSTEM_INSTALL
 
 };

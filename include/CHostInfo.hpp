@@ -22,7 +22,7 @@ public:
      *
      * @return A std::string - The host name
      */
-    std::string fstr_GetName();
+    std::string fstr_GetName() const;
 
     /**
      * @brief Get the user name
@@ -31,11 +31,11 @@ public:
      *
      * @return A std::string - The user name
      */
-    std::string fstr_GetUser();
+    std::string fstr_GetUser() const;
 
 private:
-    std::string mstr_Name;
-    std::string mstr_User;
+    mutable std::string mstr_Name;
+    mutable std::string mstr_User;
 };
 
 #endif

@@ -11,26 +11,26 @@
 #include <unistd.h>
 #include <iostream>
 
-static std::string sfstr_FormatHost(CHostInfo&& host) {
+static std::string sfstr_FormatHost(const CHostInfo& host) {
     return CStringHelper::fstr_Format(CYAN "%s" NORMAL "@" CYAN "%s" NORMAL,
                                       host.fstr_GetUser().c_str(),
                                       host.fstr_GetName().c_str());
 }
 
-static std::string sfstr_FormatPkgMan(CPackageManInfo&& pkgman) {
+static std::string sfstr_FormatPkgMan(const CPackageManInfo& pkgman) {
     return CStringHelper::fstr_Format("%d (%s)",
                                       pkgman.fui32_CountPkgs(),
                                       pkgman.fstr_GetName().c_str());
 }
 
-static std::string sfstr_FormatCpu(CCpuInfo&& cpu) {
+static std::string sfstr_FormatCpu(const CCpuInfo& cpu) {
     return CStringHelper::fstr_Format("%s (%d) @ %.2fGHz",
                                       cpu.fstr_GetName().c_str(),
                                       cpu.fui32_GetLogicalCores(),
                                       cpu.fui32_GetMaxFreq() / 1000000.0);
 }
 
-static std::string sfstr_FormatMem(CMemInfo&& mem) {
+static std::string sfstr_FormatMem(const CMemInfo& mem) {
     return CStringHelper::fstr_Format("%dMiB / %dMiB (%.2f%)",
                                       mem.fui32_GetUsed() / 1024U,
                                       mem.fui32_GetTotal() / 1024U,
@@ -98,13 +98,14 @@ int main() {
         "Terminal: ",
         "",     // emtpy line
         "CPU: ",
+        // "GPU: ", // TODO: implement a class to get GPU info based on product ID
         "Memnory: ",
         "",     // emtpy line
         ""      // color bar
     };
 
     std::vector<std::string> vecstr_Infos = {
-        sfstr_FormatHost(std::move(host)),
+        sfstr_FormatHost(host),
         std::string(host.fstr_GetUser().size() + host.fstr_GetName().size() + 1, '-'),
         os.fstr_GetName(),
         product.fstr_GetName(),
@@ -112,12 +113,13 @@ int main() {
         os.fstr_GetKernel(),
         sfstr_FormatUptime(os.fui64_GetUptime()),
         "",
-        sfstr_FormatPkgMan(std::move(pkgman)),
+        sfstr_FormatPkgMan(pkgman),
         os.fstr_GetShell(),
         terminal.fstr_GetName(),
         "",
-        sfstr_FormatCpu(std::move(cpu)),
-        sfstr_FormatMem(std::move(mem)),
+        sfstr_FormatCpu(cpu),
+        // sfstr_FormatGpu(gpu), // TODO: implement a class to get GPU info based on product ID
+        sfstr_FormatMem(mem),
         "",
         sfstr_GetColorBar()};
 

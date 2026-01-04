@@ -13,35 +13,35 @@
 CProductInfo::CProductInfo() {
 }
 
-std::string CProductInfo::fstr_GetName() {
+std::string CProductInfo::fstr_GetName() const {
     if (mstr_Name.empty()) {
         CFileReader::fi64_GetLine_nth(mstr_Name, PATH_PRODUCT_NAME_VFS);
     }
     return mstr_Name;
 }
 
-std::string CProductInfo::fstr_GetFamily() {
+std::string CProductInfo::fstr_GetFamily() const {
     if (mstr_Family.empty()) {
         CFileReader::fi64_GetLine_nth(mstr_Family, PATH_PRODUCT_FAMILY_VFS);
     }
     return mstr_Family;
 }
 
-std::string CProductInfo::fstr_GetSku() {
+std::string CProductInfo::fstr_GetSku() const {
     if (mstr_Sku.empty()) {
         CFileReader::fi64_GetLine_nth(mstr_Sku, PATH_PRODUCT_SKU_VFS);
     }
     return mstr_Sku;
 }
 
-std::string CProductInfo::fstr_GetVendor() {
+std::string CProductInfo::fstr_GetVendor() const {
     if (mstr_Vendor.empty()) {
         CFileReader::fi64_GetLine_nth(mstr_Vendor, PATH_PRODUCT_VENDOR_VFS);
     }
     return mstr_Vendor;
 }
 
-std::string CProductInfo::fstr_GetVersion() {
+std::string CProductInfo::fstr_GetVersion() const {
     if (mstr_Version.empty()) {
         CFileReader::fi64_GetLine_nth(mstr_Version, PATH_PRODUCT_VERSION_VFS);
     }
@@ -50,14 +50,14 @@ std::string CProductInfo::fstr_GetVersion() {
 
 
 #ifdef SYSTEM_INSTALL
-std::string CProductInfo::fstr_GetSerial() {
+std::string CProductInfo::fstr_GetSerial() const {
     if (mstr_Serial.empty()) {
         CFileReader::fi64_GetLine_nth(mstr_Serial, PATH_PRODUCT_SERIAL_VFS);
     }
     return mstr_Serial;
 }
 
-std::string CProductInfo::fstr_GetUuid() {
+std::string CProductInfo::fstr_GetUuid() const {
     if (mstr_Uuid.empty()) {
         CFileReader::fi64_GetLine_nth(mstr_Uuid, PATH_PRODUCT_UUID_VFS);
     }

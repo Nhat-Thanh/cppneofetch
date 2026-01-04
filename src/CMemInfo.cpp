@@ -24,109 +24,109 @@ CMemInfo::CMemInfo() :
     mui32_VmallocChunk(UINT32_INIT) {
 }
 
-uint32_t CMemInfo::fui32_GetTotal() {
+uint32_t CMemInfo::fui32_GetTotal() const {
     if (UINT32_INIT == mui32_Total) {
         _fv_ReadMemInfoFs();
     }
     return mui32_Total;
 }
 
-uint32_t CMemInfo::fui32_GetAvailable() {
+uint32_t CMemInfo::fui32_GetAvailable() const {
     if (UINT32_INIT == mui32_Available) {
         _fv_ReadMemInfoFs();
     }
     return mui32_Available;
 }
 
-uint32_t CMemInfo::fui32_GetFree() {
+uint32_t CMemInfo::fui32_GetFree() const {
     if (UINT32_INIT == mui32_Free) {
         _fv_ReadMemInfoFs();
     }
     return mui32_Free;
 }
 
-uint32_t CMemInfo::fui32_GetUsed() {
+uint32_t CMemInfo::fui32_GetUsed() const {
     return fui32_GetTotal() - fui32_GetAvailable();
 }
 
-uint32_t CMemInfo::fui32_GetShmem() {
+uint32_t CMemInfo::fui32_GetShmem() const {
     if (UINT32_INIT == mui32_Shmem) {
         _fv_ReadMemInfoFs();
     }
     return mui32_Shmem;
 }
 
-uint32_t CMemInfo::fui32_GetBuffers() {
+uint32_t CMemInfo::fui32_GetBuffers() const {
     if (UINT32_INIT == mui32_Buffers) {
         _fv_ReadMemInfoFs();
     }
     return mui32_Buffers;
 }
 
-uint32_t CMemInfo::fui32_GetCached() {
+uint32_t CMemInfo::fui32_GetCached() const {
     if (UINT32_INIT == mui32_Cached) {
         _fv_ReadMemInfoFs();
     }
     return mui32_Cached;
 }
 
-uint32_t CMemInfo::fui32_GetTotalSwap() {
+uint32_t CMemInfo::fui32_GetTotalSwap() const {
     if (UINT32_INIT == mui32_TotalSwap) {
         _fv_ReadMemInfoFs();
     }
     return mui32_TotalSwap;
 }
 
-uint32_t CMemInfo::fui32_GetFreeSwap() {
+uint32_t CMemInfo::fui32_GetFreeSwap() const {
     if (UINT32_INIT == mui32_FreeSwap) {
         _fv_ReadMemInfoFs();
     }
     return mui32_FreeSwap;
 }
 
-uint32_t CMemInfo::fui32_GetKReclaimable() {
+uint32_t CMemInfo::fui32_GetKReclaimable() const {
     if (UINT32_INIT == mui32_KReclaimable) {
         _fv_ReadMemInfoFs();
     }
     return mui32_KReclaimable;
 }
 
-uint32_t CMemInfo::fui32_GetSReclaimable() {
+uint32_t CMemInfo::fui32_GetSReclaimable() const {
     if (UINT32_INIT == mui32_SReclaimable) {
         _fv_ReadMemInfoFs();
     }
     return mui32_SReclaimable;
 }
 
-uint32_t CMemInfo::fui32_GetKernelStack() {
+uint32_t CMemInfo::fui32_GetKernelStack() const {
     if (UINT32_INIT == mui32_KernelStack) {
         _fv_ReadMemInfoFs();
     }
     return mui32_KernelStack;
 }
 
-uint32_t CMemInfo::fui32_GetPageTables() {
+uint32_t CMemInfo::fui32_GetPageTables() const {
     if (UINT32_INIT == mui32_PageTables) {
         _fv_ReadMemInfoFs();
     }
     return mui32_PageTables;
 }
 
-uint32_t CMemInfo::fui32_GetVmallocTotal() {
+uint32_t CMemInfo::fui32_GetVmallocTotal() const {
     if (UINT32_INIT == mui32_VmallocTotal) {
         _fv_ReadMemInfoFs();
     }
     return mui32_VmallocTotal;
 }
 
-uint32_t CMemInfo::fui32_GetVmallocUsed() {
+uint32_t CMemInfo::fui32_GetVmallocUsed() const {
     if (UINT32_INIT == mui32_VmallocUsed) {
         _fv_ReadMemInfoFs();
     }
     return mui32_VmallocUsed;
 }
 
-uint32_t CMemInfo::fui32_GetVmallocChunk() {
+uint32_t CMemInfo::fui32_GetVmallocChunk() const {
     if (UINT32_INIT == mui32_VmallocChunk) {
         _fv_ReadMemInfoFs();
     }
@@ -134,7 +134,7 @@ uint32_t CMemInfo::fui32_GetVmallocChunk() {
 }
 
 
-void CMemInfo::_fv_ReadMemInfoFs() {
+void CMemInfo::_fv_ReadMemInfoFs() const {
     typedef struct {
         const char* kpc_Format;
         void* pv_Variable;

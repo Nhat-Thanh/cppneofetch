@@ -10,7 +10,7 @@
 CTerminalInfo::CTerminalInfo() {
 }
 
-std::string CTerminalInfo::fstr_GetName() {
+std::string CTerminalInfo::fstr_GetName() const {
     if (mstr_Name.empty()) {
         std::string str_Line;
         std::string str_Path;

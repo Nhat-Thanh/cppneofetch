@@ -93,7 +93,7 @@ CPackageManInfo::CPackageManInfo() {
     mpfui32_PkgCounter = nullptr;
 }
 
-std::string CPackageManInfo::fstr_GetName() {
+std::string CPackageManInfo::fstr_GetName() const {
     if (mstr_Name.empty()) {
         std::vector<const char*> veckpc_KnownPkgManagers = {
             PKGMAN_APT,
@@ -121,7 +121,7 @@ std::string CPackageManInfo::fstr_GetName() {
     return mstr_Name;
 }
 
-uint32_t CPackageManInfo::fui32_CountPkgs() {
+uint32_t CPackageManInfo::fui32_CountPkgs() const {
     // Must determine the package manager first
     fstr_GetName();
     if (nullptr == mpfui32_PkgCounter) {

@@ -24,7 +24,7 @@ public:
      *
      * @return A std::string - OS name
      */
-    std::string fstr_GetName();
+    std::string fstr_GetName() const;
 
     /**
      * @brief Get kernel version of OS
@@ -33,7 +33,7 @@ public:
      *
      * @return A std::string - kernel version
      */
-    std::string fstr_GetKernel();
+    std::string fstr_GetKernel() const;
 
     /**
      * @brief Get name of running shell (The application runs this program)
@@ -42,7 +42,7 @@ public:
      *
      * @return A std::string - shell name
      */
-    std::string fstr_GetShell();
+    std::string fstr_GetShell() const;
 
     /**
      * @brief Get uptime of system in seconds
@@ -51,7 +51,7 @@ public:
      *
      * @return An uint64_t number - uptime in seconds
      */
-    uint64_t fui64_GetUptime();
+    uint64_t fui64_GetUptime() const;
 
 private:
     /**
@@ -61,7 +61,7 @@ private:
      *
      * @return None
      */
-    void _fv_ReadOsReleaseFs();
+    void _fv_ReadOsReleaseFs() const;
 
     /**
      * @brief Read /proc filesystem to get name of running shell process
@@ -70,12 +70,12 @@ private:
      *
      * @return None
      */
-    void _fv_ReadShellFs();
+    void _fv_ReadShellFs() const;
 
-    std::string mstr_Name;
-    std::string mstr_Kernel;
-    std::string mstr_Shell;
-    uint64_t mui64_Uptime;
+    mutable std::string mstr_Name;
+    mutable std::string mstr_Kernel;
+    mutable std::string mstr_Shell;
+    mutable uint64_t mui64_Uptime;
 };
 
 #endif

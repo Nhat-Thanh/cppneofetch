@@ -18,15 +18,13 @@ CCpuInfo::CCpuInfo(uint32_t ui32_CpuId):
     mui32_MinFreq(UINT32_INIT),
     mui32_Cache(UINT32_INIT),
     mui32_LogicalCores(UINT32_INIT),
-    mui32_PhysicalCores(UINT32_INIT),
-    mui32_ReadPhysicalId(UINT32_INIT),
-    mui32_ReadProcessor0(UINT32_INIT)
+    mui32_PhysicalCores(UINT32_INIT)
 {
 }
 
-void CCpuInfo::_fv_ReadCpuInfoFS() {
+void CCpuInfo::_fv_ReadCpuInfoFS() const {
     char ac_ModelName[NAME_MAX];
-    uint32_t ui32_Processor = 0;
+    uint32_t ui32_Processor0 = 0;
     uint32_t ui32_CacheSize = 0;
     uint32_t ui32_PhysicalId = 0;
     uint32_t ui32_Siblings = 0;
@@ -42,7 +40,7 @@ void CCpuInfo::_fv_ReadCpuInfoFS() {
         } sscanf_arg_t;
 
         std::vector<sscanf_arg_t> vec_Args = {
-            { "processor : %d",       &ui32_Processor,  false },
+            { "processor : %d",       &ui32_Processor0, false },
             { "model name : %[^\n@]", ac_ModelName,     false },
             { "cache size : %d",      &ui32_CacheSize,  false },
             { "physical id : %d",     &ui32_PhysicalId, false },
@@ -81,80 +79,70 @@ void CCpuInfo::_fv_ReadCpuInfoFS() {
     ifs.close();
 
     if (ui32_PhysicalId == mui32_CpuId) {
-        mui32_ReadPhysicalId = ui32_PhysicalId;
-        mui32_ReadProcessor0 = ui32_Processor;
+        _fv_ReadCpuMaxFreqFS(ui32_Processor0);
+        _fv_ReadCpuMinFreqFS(ui32_Processor0);
     }
 }
 
-void CCpuInfo::_fv_ReadCpuMaxFreqFS() {
-    if (mui32_ReadPhysicalId == mui32_CpuId) {
-        std::string str_Line;
-        std::string str_CpuFreqPath;
-        CStringHelper::fv_Format(str_CpuFreqPath, PATH_CPUMAXFREQ_FMT, mui32_ReadProcessor0);
-        if (EXIT_SUCCESS == CFileReader::fi64_GetLine_nth(str_Line, str_CpuFreqPath)) {
-            mui32_MaxFreq = strtoul(str_Line.c_str(), NULL, BASE_DECIMAL);
-        }
+void CCpuInfo::_fv_ReadCpuMaxFreqFS(uint32_t ui32_Processor) const {
+    std::string str_Line;
+    std::string str_CpuFreqPath;
+    CStringHelper::fv_Format(str_CpuFreqPath, PATH_CPUMAXFREQ_FMT, ui32_Processor);
+    if (EXIT_SUCCESS == CFileReader::fi64_GetLine_nth(str_Line, str_CpuFreqPath)) {
+        mui32_MaxFreq = strtoul(str_Line.c_str(), NULL, BASE_DECIMAL);
     }
 }
 
-void CCpuInfo::_fv_ReadCpuMinFreqFS() {
-    if (mui32_ReadPhysicalId == mui32_CpuId) {
-        std::string str_Line;
-        std::string str_CpuFreqPath;
-        CStringHelper::fv_Format(str_CpuFreqPath, PATH_CPUMINFREQ_FMT, mui32_ReadProcessor0);
-        if (EXIT_SUCCESS == CFileReader::fi64_GetLine_nth(str_Line, str_CpuFreqPath)) {
-            mui32_MaxFreq = strtoul(str_Line.c_str(), NULL, BASE_DECIMAL);
-        }
+void CCpuInfo::_fv_ReadCpuMinFreqFS(uint32_t ui32_Processor) const {
+    std::string str_Line;
+    std::string str_CpuFreqPath;
+    CStringHelper::fv_Format(str_CpuFreqPath, PATH_CPUMINFREQ_FMT, ui32_Processor);
+    if (EXIT_SUCCESS == CFileReader::fi64_GetLine_nth(str_Line, str_CpuFreqPath)) {
+        mui32_MaxFreq = strtoul(str_Line.c_str(), NULL, BASE_DECIMAL);
     }
 }
 
 
-std::string CCpuInfo::fstr_GetName() {
+std::string CCpuInfo::fstr_GetName() const {
     if (mstr_Name.empty()) {
         _fv_ReadCpuInfoFS();
     }
     return mstr_Name;
 }
 
-uint32_t CCpuInfo::fui32_GetCpuId() {
+uint32_t CCpuInfo::fui32_GetCpuId() const {
     return mui32_CpuId;
 }
 
-uint32_t CCpuInfo::fui32_GetMaxFreq() {
+uint32_t CCpuInfo::fui32_GetMaxFreq() const {
     if (UINT32_INIT == mui32_MaxFreq) {
-        if (UINT32_INIT == mui32_ReadProcessor0) {
-            _fv_ReadCpuInfoFS();
-        }
-        _fv_ReadCpuMaxFreqFS();
+        _fv_ReadCpuInfoFS();
     }
     return mui32_MaxFreq;
 }
 
-uint32_t CCpuInfo::fui32_GetMinFreq() {
+uint32_t CCpuInfo::fui32_GetMinFreq() const {
     if (UINT32_INIT == mui32_MinFreq) {
-        if (UINT32_INIT == mui32_ReadProcessor0) {
-            _fv_ReadCpuInfoFS();
-        }
-        _fv_ReadCpuMinFreqFS();
+        _fv_ReadCpuInfoFS();
     }
     return mui32_MinFreq;
 }
 
-uint32_t CCpuInfo::fui32_GetCache() {
+uint32_t CCpuInfo::fui32_GetCache() const {
     if (UINT32_INIT == mui32_Cache) {
         _fv_ReadCpuInfoFS();
     }
     return mui32_Cache;
 }
 
-uint32_t CCpuInfo::fui32_GetLogicalCores() {
+uint32_t CCpuInfo::fui32_GetLogicalCores() const {
     if (UINT32_INIT == mui32_LogicalCores) {
         _fv_ReadCpuInfoFS();
     }
     return mui32_LogicalCores;
 }
 
-uint32_t CCpuInfo::fui32_GetPhysicalCores() {
+uint32_t CCpuInfo::fui32_GetPhysicalCores() const {
     if (UINT32_INIT == mui32_PhysicalCores) {
         _fv_ReadCpuInfoFS();
     }

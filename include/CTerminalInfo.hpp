@@ -22,10 +22,10 @@ public:
      *
      * @return A std::string - The terminal application name
      */
-    std::string fstr_GetName();
+    std::string fstr_GetName() const;
 
 private:
-    std::string mstr_Name;
+    mutable std::string mstr_Name;
 };
 
 #endif
