@@ -1,4 +1,5 @@
 #include "CCpuInfo.hpp"
+#include "CGpuInfo.hpp"
 #include "CMemInfo.hpp"
 #include "CProductInfo.hpp"
 #include "CTerminalInfo.hpp"
@@ -6,6 +7,7 @@
 #include "CPackageManInfo.hpp"
 #include "CHostInfo.hpp"
 #include "CStringHelper.hpp"
+#include "Definitions.hpp"
 #include "Colors.hpp"
 #include "Logo.hpp"
 #include <unistd.h>
@@ -77,6 +79,7 @@ static std::string sfstr_GetColorBar() {
 
 int main() {
     CCpuInfo cpu;
+    CGpuInfo gpu;
     CMemInfo mem;
     CProductInfo product;
     CTerminalInfo terminal;
@@ -84,44 +87,56 @@ int main() {
     CPackageManInfo pkgman;
     CHostInfo host;
 
-    std::vector<std::string> vecstr_Fields = {
-        "",     // user@host
-        "",     // ---------
-        "OS: ",
-        "Model: ",
-        "Vendor: ",
-        "Kernel: ",
-        "Uptime: ",
-        "",     // emtpy line
-        "Packages: ",
-        "Shell: ",
-        "Terminal: ",
-        "",     // emtpy line
-        "CPU: ",
-        // "GPU: ", // TODO: implement a class to get GPU info based on product ID
-        "Memnory: ",
-        "",     // emtpy line
-        ""      // color bar
-    };
+    std::vector<std::string> vecstr_Fields;
+    vecstr_Fields.emplace_back("");     // user@host
+    vecstr_Fields.emplace_back("");     // ---------
+    vecstr_Fields.emplace_back("OS: ");
+    vecstr_Fields.emplace_back("Model: ");
+    vecstr_Fields.emplace_back("Vendor: ");
+    vecstr_Fields.emplace_back("Kernel: ");
+    vecstr_Fields.emplace_back("Uptime: ");
+    vecstr_Fields.emplace_back("Packages: ");
+    vecstr_Fields.emplace_back("Shell: ");
+    vecstr_Fields.emplace_back("Terminal: ");
+    vecstr_Fields.emplace_back("CPU: ");
+    if (1 < gpu.fvecstr_GetNames().size()) {
+        for (size_t ui64_Idx = 0; ui64_Idx < gpu.fvecstr_GetNames().size(); ++ui64_Idx) {
+            vecstr_Fields.emplace_back(CStringHelper::fstr_Format("GPU %d: ", ui64_Idx + 1));
+        }
+    } else if (1 == gpu.fvecstr_GetNames().size()) {
+        vecstr_Fields.emplace_back("GPU: ");
+    }
+    vecstr_Fields.emplace_back("Memnory: ");
+    vecstr_Fields.emplace_back("");     // empty line
+    vecstr_Fields.emplace_back("");     // color bar
 
-    std::vector<std::string> vecstr_Infos = {
-        sfstr_FormatHost(host),
-        std::string(host.fstr_GetUser().size() + host.fstr_GetName().size() + 1, '-'),
-        os.fstr_GetName(),
-        product.fstr_GetName(),
-        product.fstr_GetVendor(),
-        os.fstr_GetKernel(),
-        sfstr_FormatUptime(os.fui64_GetUptime()),
-        "",
-        sfstr_FormatPkgMan(pkgman),
-        os.fstr_GetShell(),
-        terminal.fstr_GetName(),
-        "",
-        sfstr_FormatCpu(cpu),
-        // sfstr_FormatGpu(gpu), // TODO: implement a class to get GPU info based on product ID
-        sfstr_FormatMem(mem),
-        "",
-        sfstr_GetColorBar()};
+    std::vector<std::string> vecstr_Infos;
+    vecstr_Infos.emplace_back(sfstr_FormatHost(host));
+    vecstr_Infos.emplace_back(std::string(host.fstr_GetUser().size() + host.fstr_GetName().size() + 1, '-'));
+    vecstr_Infos.emplace_back(os.fstr_GetName());
+    vecstr_Infos.emplace_back(product.fstr_GetName());
+    vecstr_Infos.emplace_back(product.fstr_GetVendor());
+    vecstr_Infos.emplace_back(os.fstr_GetKernel());
+    vecstr_Infos.emplace_back(sfstr_FormatUptime(os.fui64_GetUptime()));
+    vecstr_Infos.emplace_back(sfstr_FormatPkgMan(pkgman));
+    vecstr_Infos.emplace_back(os.fstr_GetShell());
+    vecstr_Infos.emplace_back(terminal.fstr_GetName());
+    vecstr_Infos.emplace_back(sfstr_FormatCpu(cpu));
+    if (0 < gpu.fvecstr_GetNames().size()) {
+        for (size_t ui64_Idx = 0; ui64_Idx < gpu.fvecstr_GetNames().size(); ++ui64_Idx) {
+            if (UINT32_INIT != gpu.fvecui32_GetMaxGpuFreqMhz()[ui64_Idx]) {
+                vecstr_Infos.emplace_back(
+                    CStringHelper::fstr_Format("%s @ %.2fGHz",
+                                               gpu.fvecstr_GetNames()[ui64_Idx].c_str(),
+                                               gpu.fvecui32_GetMaxGpuFreqMhz()[ui64_Idx] / 1000.0));
+            } else {
+                vecstr_Infos.emplace_back(gpu.fvecstr_GetNames()[ui64_Idx]);
+            }
+        }
+    }
+    vecstr_Infos.emplace_back(sfstr_FormatMem(mem));
+    vecstr_Infos.emplace_back("");
+    vecstr_Infos.emplace_back(sfstr_GetColorBar());
 
     if (vecstr_Fields.size() != vecstr_Infos.size()) {
         std::cerr << "Number of fields are different from number of infos" << std::endl;
