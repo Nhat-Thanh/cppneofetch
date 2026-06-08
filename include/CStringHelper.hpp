@@ -120,6 +120,20 @@ public:
      * @return None
      */
     static void fv_Format(std::string& rstr_Dest, const std::string& kstr_Format, ...);
+
+    /**
+     * @brief Extract substring between two delimiter characters from input string
+     *
+     * @param kstr - The source string to extract the substring from (unchanged)
+     * @param c_start - The starting delimiter character
+     * @param c_end - The ending delimiter character
+     *
+     * @return None
+     */
+    static std::string fstr_GetSubstringBetween(const std::string& kstr,
+                                                char c_start,
+                                                char c_end);
+
 };
 
 #endif

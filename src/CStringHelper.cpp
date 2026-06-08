@@ -121,3 +121,19 @@ void CStringHelper::fv_Format(std::string& rstr_Dest, const std::string& kstr_Fo
         rstr_Dest.assign(ac);
     }
 }
+
+std::string CStringHelper::fstr_GetSubstringBetween(const std::string& kstr, char c_start, char c_end) {
+    std::string str;
+    size_t ui32_Start = kstr.find(c_start);
+    if (std::string::npos != ui32_Start) {
+        size_t ui32_End = kstr.rfind(c_end);
+        if (ui32_End > ui32_Start) {
+            size_t length = ui32_End - ui32_Start - 1;
+            if (length > 0) {
+                str = kstr.substr(ui32_Start + 1, length);
+            }
+        }
+    }
+
+    return str;
+}

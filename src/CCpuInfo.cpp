@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <fstream>
 #include <cstdlib>
+#include <iostream>
 
 #define PATH_CPUINFO_VFS "/proc/cpuinfo"
 #define PATH_CPUMAXFREQ_FMT "/sys/devices/system/cpu/cpu%d/cpufreq/cpuinfo_max_freq"
@@ -98,7 +99,7 @@ void CCpuInfo::_fv_ReadCpuMinFreqFS(uint32_t ui32_Processor) const {
     std::string str_CpuFreqPath;
     CStringHelper::fv_Format(str_CpuFreqPath, PATH_CPUMINFREQ_FMT, ui32_Processor);
     if (EXIT_SUCCESS == CFileReader::fi64_GetLine_nth(str_Line, str_CpuFreqPath)) {
-        mui32_MaxFreq = strtoul(str_Line.c_str(), NULL, BASE_DECIMAL);
+        mui32_MinFreq = strtoul(str_Line.c_str(), NULL, BASE_DECIMAL);
     }
 }
 
