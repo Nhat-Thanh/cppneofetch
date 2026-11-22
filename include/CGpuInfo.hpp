@@ -1,57 +1,46 @@
-#ifndef _CGPUINFO_HPP_
-#define _CGPUINFO_HPP_
+#ifndef CPPNEOFETCH_CGPUINFO_HPP
+#define CPPNEOFETCH_CGPUINFO_HPP
+
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
-#include <stdint.h>
 
 /**
- * @brief A utility class that manages and provides access to GPU information.
+ * @brief Represents a detected PCI GPU/display controller and its properties.
  */
-class CGpuInfo
-{
-private:
-    std::vector<std::string> mvecstr_GpuNames;
-    std::vector<std::string> mvecstr_PciBusAddresses;
-    std::vector<uint32_t> mvecui32_MaxGpuFreqMhz;
+typedef struct {
+    std::string str_BusAddress;
+    std::string str_Name;
+    std::optional<uint32_t> optui32_MaxFreqMhz;
+} gpu_device_t;
 
-    void fv_FindPciBusAddress();
-
-    bool fb_GetDecimalValue(const std::string& kstr_Path, uint32_t& rui32_Out);
-
+/**
+ * @brief A class that detects PCI display controllers and provides GPU information.
+ */
+class CGpuInfo {
+public:
     /**
-     * Reads a PCI device ID or Vendor ID from hex file.
-     * 
-     * @param path Path to the hex value file (e.g., "/sys/bus/pci/devices/xxx/vendor")
-     * 
-     * @return true if read successful, false otherwise
+     * @brief Construct CGpuInfo and scan sysfs PCI devices for display controllers.
      */
-    bool fb_GetHexValue(const std::string& kstr_Path, uint32_t& rui32_Out);
-
-  public:
     CGpuInfo();
-    CGpuInfo(const CGpuInfo&) = default;
-    CGpuInfo& operator=(const CGpuInfo&) = default;
-    CGpuInfo(CGpuInfo&&) = default;
-    CGpuInfo& operator=(CGpuInfo&&) = default;
-    virtual ~CGpuInfo() = default;
 
     /**
-     * @brief Retrieves a list containing all detected GPU names from the system.
-     * 
-     * @param None
-     * 
-     * @return A std::vector<std::string> - contains strings representing each GPU's name, returns empty vector if no GPUs found
+     * @brief Get all detected GPU devices sorted by PCI bus address.
+     *
+     * @return Const reference to the vector of detected gpu_device_t records
      */
-    const std::vector<std::string>& fvecstr_GetNames();
+    const std::vector<gpu_device_t>& fkrvec_GetDevices() const noexcept {
+        return mvec_Devices;
+    }
 
+private:
     /**
-     * @brief Retrieves the maximum integrated GPU clock speed from stored data.
-     * 
-     * @param None
-     * 
-     * @return A float - represents the maximum integrated GPU clock frequency in MHz, returns zero if no valid data available
+     * @brief Scan /sys/bus/pci/devices for display controllers and resolve names/clocks.
      */
-    const std::vector<uint32_t>& fvecui32_GetMaxGpuFreqMhz();
+    void fv_DetectDevices();
+
+    std::vector<gpu_device_t> mvec_Devices;
 };
 
-#endif
+#endif // CPPNEOFETCH_CGPUINFO_HPP

@@ -1,63 +1,130 @@
 #include "COsInfo.hpp"
-#include "CStringHelper.hpp"
-#include "CFileReader.hpp"
-#include "Definitions.hpp"
+#include "utils/Definitions.hpp"
+#include "helpers/FileReader.hpp"
+#include "helpers/StringHandler.hpp"
+
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #include <unistd.h>
+#include <array>
+#include <cstdlib>
 
-#define PATH_OSRELEASE_VFS "/etc/os-release"
+namespace {
 
-COsInfo::COsInfo():
-    mui64_Uptime(UINT64_INIT) {
-}
+constexpr std::array<const char*, 2> ska_OsReleasePaths = {
+    "/etc/os-release",
+    "/usr/lib/os-release",
+};
 
-std::string COsInfo::fstr_GetName() const {
-    if (mstr_Name.empty()) {
-        _fv_ReadOsReleaseFs();
+constexpr std::string_view ksv_KeyPrettyName = "PRETTY_NAME=";
+constexpr std::string_view ksv_KeyName       = "NAME=";
+constexpr std::string_view ksv_KeyId         = "ID=";
+
+constexpr const char* kpc_DefaultOsName = "Linux";
+constexpr const char* kpc_EnvShell      = "SHELL";
+constexpr char        kc_PathSep        = '/';
+constexpr char        kc_DoubleQuote    = '"';
+constexpr char        kc_SingleQuote    = '\'';
+
+std::string sfstr_UnquoteValue(std::string_view sv_Val) {
+    std::string str_Val(sv_Val);
+    StringHandler::fv_Trim(str_Val, Chars::ksv_Whitespace);
+    if (2U <= str_Val.size() &&
+        ((kc_DoubleQuote == str_Val.front() && kc_DoubleQuote == str_Val.back()) ||
+         (kc_SingleQuote == str_Val.front() && kc_SingleQuote == str_Val.back()))) {
+        str_Val = str_Val.substr(1U, str_Val.size() - 2U);
     }
-    return mstr_Name;
+    return str_Val;
 }
 
-std::string COsInfo::fstr_GetKernel() const {
-    if (mstr_Kernel.empty()) {
-        struct utsname utsname_Info;
-        if (SYSCALL_SUCCESS == uname(&utsname_Info)) {
-            mstr_Kernel.assign(utsname_Info.release);
+std::string sfstr_BasenameOf(std::string_view sv_Path) {
+    const std::size_t ui64_Slash = sv_Path.rfind(kc_PathSep);
+    if (std::string_view::npos != ui64_Slash) {
+        sv_Path.remove_prefix(ui64_Slash + 1U);
+    }
+    return std::string(sv_Path);
+}
+
+} // namespace
+
+/**
+ * @brief Construct COsInfo and eagerly load OS, kernel, shell, and uptime details.
+ */
+COsInfo::COsInfo() {
+    fv_ReadOsReleaseFs();
+    fv_ReadKernel();
+    fv_ReadShellFs();
+    fv_ReadUptime();
+}
+
+/**
+ * @brief Read /etc/os-release (or /usr/lib/os-release) for OS name and ID.
+ */
+void COsInfo::fv_ReadOsReleaseFs() {
+    std::vector<std::string> vecstr_Lines;
+    bool b_Loaded = false;
+    for (const char* kpc_Path : ska_OsReleasePaths) {
+        if (FileReader::fb_ReadLines(vecstr_Lines, kpc_Path)) {
+            b_Loaded = true;
+            break;
         }
     }
-    return mstr_Kernel;
-}
-
-uint64_t COsInfo::fui64_GetUptime() const {
-    struct sysinfo SystemInfo;
-    if (SYSCALL_SUCCESS == sysinfo(&SystemInfo)) {
-        typedef struct {
-            const char* kpc_Unit;
-            long i64_time;
-        } time_unit_t;
-        mui64_Uptime = SystemInfo.uptime;
+    if (!b_Loaded) {
+        mstr_Name = kpc_DefaultOsName;
+        return;
     }
-    return mui64_Uptime;
-}
 
-std::string COsInfo::fstr_GetShell() const {
-    if (mstr_Shell.empty()) {
-        _fv_ReadShellFs();
+    std::string str_FallbackName;
+    for (const std::string& krstr_Line : vecstr_Lines) {
+        const std::string_view sv_Line(krstr_Line);
+        if (sv_Line.starts_with(ksv_KeyPrettyName)) {
+            mstr_Name = sfstr_UnquoteValue(sv_Line.substr(ksv_KeyPrettyName.size()));
+        } else if (sv_Line.starts_with(ksv_KeyName)) {
+            str_FallbackName = sfstr_UnquoteValue(sv_Line.substr(ksv_KeyName.size()));
+        } else if (sv_Line.starts_with(ksv_KeyId)) {
+            mstr_Id = sfstr_UnquoteValue(sv_Line.substr(ksv_KeyId.size()));
+        }
     }
-    return mstr_Shell;
+
+    if (mstr_Name.empty()) {
+        mstr_Name = str_FallbackName.empty() ? kpc_DefaultOsName : std::move(str_FallbackName);
+    }
 }
 
-
-void COsInfo::_fv_ReadOsReleaseFs() const {
-    std::vector<std::string> vecstr_Lines;
-    std::string str_Keyword = "PRETTY_NAME=";
-    CFileReader::fi64_FindLine(vecstr_Lines, PATH_OSRELEASE_VFS, str_Keyword);
-    mstr_Name.assign(vecstr_Lines.front().begin() + str_Keyword.size(), vecstr_Lines.front().end());
-    CStringHelper::fv_Trim(mstr_Name, CHAR_QUOTE);
+/**
+ * @brief Query uname(2) to retrieve the kernel release string.
+ */
+void COsInfo::fv_ReadKernel() {
+    struct utsname uts_Info{};
+    if (0 == ::uname(&uts_Info)) {
+        mstr_Kernel.assign(uts_Info.release);
+    }
 }
 
-void COsInfo::_fv_ReadShellFs() const {
-    CFileReader::fi64_GetLine_nth(mstr_Shell, CStringHelper::fstr_Format(PATH_PROC_COMM_FORMAT, getppid()));
+/**
+ * @brief Detect the active shell from $SHELL or parent process comm.
+ */
+void COsInfo::fv_ReadShellFs() {
+    if (const char* kpc_EnvShellVal = std::getenv(kpc_EnvShell);
+        nullptr != kpc_EnvShellVal && '\0' != kpc_EnvShellVal[0]) {
+        mstr_Shell = sfstr_BasenameOf(kpc_EnvShellVal);
+        if (!mstr_Shell.empty()) {
+            return;
+        }
+    }
+
+    const std::string str_CommPath = StringHandler::fstr_Format(Paths::kpc_ProcCommFmt, ::getppid());
+    if (FileReader::fb_ReadFirstLine(mstr_Shell, str_CommPath)) {
+        StringHandler::fv_Trim(mstr_Shell);
+    }
 }
 
+/**
+ * @brief Query sysinfo(2) to retrieve system uptime in seconds.
+ */
+void COsInfo::fv_ReadUptime() {
+    struct sysinfo sys_Info{};
+    if (0 == ::sysinfo(&sys_Info) && 0 <= sys_Info.uptime) {
+        mui64_Uptime = static_cast<uint64_t>(sys_Info.uptime);
+    }
+}

@@ -1,191 +1,152 @@
-#ifndef _CMEMINFO_HPP_
-#define _CMEMINFO_HPP_
+#ifndef CPPNEOFETCH_CMEMINFO_HPP
+#define CPPNEOFETCH_CMEMINFO_HPP
 
-#include <string>
 #include <cstdint>
 
 /**
- * @brief A class to get current memory information
+ * @brief A class to get current system memory information (in KiB) from /proc/meminfo.
  */
 class CMemInfo {
 public:
+    /**
+     * @brief Construct CMemInfo and parse /proc/meminfo.
+     */
     CMemInfo();
-    CMemInfo(const CMemInfo &) = default;
-    CMemInfo& operator=(const CMemInfo&) = default;
-    CMemInfo(CMemInfo &&) = default;
-    CMemInfo & operator=(CMemInfo&&) = default;
-    virtual ~CMemInfo() = default;
 
     /**
-     * @brief Get total memory
+     * @brief Get total physical RAM in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The total memory
+     * @return Total memory in KiB
      */
-    uint32_t fui32_GetTotal() const;
+    uint64_t fui64_GetTotal() const noexcept { return mui64_Total; }
 
     /**
-     * @brief Get current available memory
+     * @brief Get available memory in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The current available memory
+     * @return Available memory in KiB
      */
-    uint32_t fui32_GetAvailable() const;
+    uint64_t fui64_GetAvailable() const noexcept { return mui64_Available; }
 
     /**
-     * @brief Get current free memory
+     * @brief Get completely unallocated free memory in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The current free memory
+     * @return Free memory in KiB
      */
-    uint32_t fui32_GetFree() const;
+    uint64_t fui64_GetFree() const noexcept { return mui64_Free; }
 
     /**
-     * @brief Get current used memory
+     * @brief Get used memory in KiB (Total - Available, or Total - Free fallback).
      *
-     * @param None
-     *
-     * @return An uint32_t number - The used memory
+     * @return Used memory in KiB
      */
-    uint32_t fui32_GetUsed() const;
+    uint64_t fui64_GetUsed() const noexcept;
 
     /**
-     * @brief Get shared memory size
+     * @brief Get shared memory (Shmem) size in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The shared memory size
+     * @return Shared memory size in KiB
      */
-    uint32_t fui32_GetShmem() const;
+    uint64_t fui64_GetShmem() const noexcept { return mui64_Shmem; }
 
     /**
-     * @brief Get buffer memory
+     * @brief Get kernel buffer memory size in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The buffer size
+     * @return Buffer memory size in KiB
      */
-    uint32_t fui32_GetBuffers() const;
+    uint64_t fui64_GetBuffers() const noexcept { return mui64_Buffers; }
 
     /**
-     * @brief Get cache size
+     * @brief Get page cache size in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The cache size
+     * @return Page cache size in KiB
      */
-    uint32_t fui32_GetCached() const;
+    uint64_t fui64_GetCached() const noexcept { return mui64_Cached; }
 
     /**
-     * @brief Get system swap size
+     * @brief Get total swap space in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The system swap size
+     * @return Total swap space in KiB
      */
-    uint32_t fui32_GetTotalSwap() const;
+    uint64_t fui64_GetTotalSwap() const noexcept { return mui64_TotalSwap; }
 
     /**
-     * @brief Get current free system swap
+     * @brief Get free swap space in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The current free system swap
+     * @return Free swap space in KiB
      */
-    uint32_t fui32_GetFreeSwap() const;
+    uint64_t fui64_GetFreeSwap() const noexcept { return mui64_FreeSwap; }
 
     /**
-     * @brief Get current reclaimable memory in kernel
+     * @brief Get kernel reclaimable memory in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The size of current reclaimable memory in kernel
+     * @return Kernel reclaimable memory in KiB
      */
-    uint32_t fui32_GetKReclaimable() const;
+    uint64_t fui64_GetKReclaimable() const noexcept { return mui64_KReclaimable; }
 
     /**
-     * @brief Get reclaimable shared memory
+     * @brief Get slab reclaimable memory in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The reclaimable size of shared memory
+     * @return Slab reclaimable memory in KiB
      */
-    uint32_t fui32_GetSReclaimable() const;
+    uint64_t fui64_GetSReclaimable() const noexcept { return mui64_SReclaimable; }
 
     /**
-     * @brief Get the stack size of kernel
+     * @brief Get kernel stack memory size in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The stack size of kernel
+     * @return Kernel stack size in KiB
      */
-    uint32_t fui32_GetKernelStack() const;
+    uint64_t fui64_GetKernelStack() const noexcept { return mui64_KernelStack; }
 
     /**
-     * @brief Get page table size
+     * @brief Get page tables memory size in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The page table size
+     * @return Page tables size in KiB
      */
-    uint32_t fui32_GetPageTables() const;
+    uint64_t fui64_GetPageTables() const noexcept { return mui64_PageTables; }
 
     /**
-     * @brief Get the total size of virtual allocated memory
+     * @brief Get total vmalloc virtual address space in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - the total size of virtual allocated memory
+     * @return Total vmalloc size in KiB
      */
-    uint32_t fui32_GetVmallocTotal() const;
+    uint64_t fui64_GetVmallocTotal() const noexcept { return mui64_VmallocTotal; }
 
     /**
-     * @brief Get the host name
+     * @brief Get used vmalloc memory in KiB.
      *
-     * @param None
-     *
-     * @return a string of the host name
+     * @return Used vmalloc size in KiB
      */
-    uint32_t fui32_GetVmallocUsed() const;
+    uint64_t fui64_GetVmallocUsed() const noexcept { return mui64_VmallocUsed; }
 
     /**
-     * @brief Get chunk size of virtual allocated memory
+     * @brief Get largest contiguous free vmalloc chunk in KiB.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The chunk size of virtual allocated memory
+     * @return Vmalloc chunk size in KiB
      */
-    uint32_t fui32_GetVmallocChunk() const;
-
+    uint64_t fui64_GetVmallocChunk() const noexcept { return mui64_VmallocChunk; }
 
 private:
     /**
-     * @brief Read meminfo filesystem to get current memory info in system
-     *
-     * @param None
-     *
-     * @return None
+     * @brief Read and parse memory metrics from /proc/meminfo in a single pass.
      */
-    void _fv_ReadMemInfoFs() const;
+    void fv_ReadMemInfoFs();
 
-    mutable uint32_t mui32_Total;
-    mutable uint32_t mui32_Available;
-    mutable uint32_t mui32_Free;
-    mutable uint32_t mui32_Shmem;
-    mutable uint32_t mui32_Buffers;
-    mutable uint32_t mui32_Cached;
-    mutable uint32_t mui32_TotalSwap;
-    mutable uint32_t mui32_FreeSwap;
-    mutable uint32_t mui32_KReclaimable;
-    mutable uint32_t mui32_SReclaimable;
-    mutable uint32_t mui32_KernelStack;
-    mutable uint32_t mui32_PageTables;
-    mutable uint32_t mui32_VmallocTotal;
-    mutable uint32_t mui32_VmallocUsed;
-    mutable uint32_t mui32_VmallocChunk;
+    uint64_t mui64_Total{0ULL};
+    uint64_t mui64_Available{0ULL};
+    uint64_t mui64_Free{0ULL};
+    uint64_t mui64_Shmem{0ULL};
+    uint64_t mui64_Buffers{0ULL};
+    uint64_t mui64_Cached{0ULL};
+    uint64_t mui64_TotalSwap{0ULL};
+    uint64_t mui64_FreeSwap{0ULL};
+    uint64_t mui64_KReclaimable{0ULL};
+    uint64_t mui64_SReclaimable{0ULL};
+    uint64_t mui64_KernelStack{0ULL};
+    uint64_t mui64_PageTables{0ULL};
+    uint64_t mui64_VmallocTotal{0ULL};
+    uint64_t mui64_VmallocUsed{0ULL};
+    uint64_t mui64_VmallocChunk{0ULL};
+    bool mb_HasAvailable{false};
 };
 
-#endif
+#endif // CPPNEOFETCH_CMEMINFO_HPP

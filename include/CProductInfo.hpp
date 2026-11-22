@@ -1,98 +1,59 @@
-#ifndef _CPRODUCTINFO_HPP_
-#define _CPRODUCTINFO_HPP_
+#ifndef CPPNEOFETCH_CPRODUCTINFO_HPP
+#define CPPNEOFETCH_CPRODUCTINFO_HPP
 
 #include <string>
 
 /**
- * @brief A class to get product (model) information
+ * @brief A class to get hardware product (model) and vendor information.
  */
 class CProductInfo {
 public:
+    /**
+     * @brief Construct CProductInfo and read DMI / device-tree hardware details.
+     */
     CProductInfo();
-    CProductInfo(const CProductInfo &) = default;
-    CProductInfo& operator=(const CProductInfo&) = default;
-    CProductInfo(CProductInfo &&) = default;
-    CProductInfo & operator=(CProductInfo&&) = default;
-    virtual ~CProductInfo() = default;
-
 
     /**
-     * @brief Get product name
+     * @brief Get the hardware product or board model name.
      *
-     * @param None
-     *
-     * @return A std::string - The product name
+     * @return Const reference to the product name string
      */
-    std::string fstr_GetName() const;
+    const std::string& fstr_GetName() const noexcept { return mstr_Name; }
 
     /**
-     * @brief Get product family name
+     * @brief Get the hardware product family.
      *
-     * @param None
-     *
-     * @return A std::string - The product family name
+     * @return Const reference to the product family string
      */
-    std::string fstr_GetFamily() const;
+    const std::string& fstr_GetFamily() const noexcept { return mstr_Family; }
 
     /**
-     * @brief Get product SKU
+     * @brief Get the hardware product SKU.
      *
-     * @param None
-     *
-     * @return A std::string - The product SKU
+     * @return Const reference to the product SKU string
      */
-    std::string fstr_GetSku() const;
+    const std::string& fstr_GetSku() const noexcept { return mstr_Sku; }
 
     /**
-     * @brief Get product vendor name
+     * @brief Get the hardware system or board vendor name.
      *
-     * @param None
-     *
-     * @return A std::string - The product vendor name
+     * @return Const reference to the vendor name string
      */
-    std::string fstr_GetVendor() const;
+    const std::string& fstr_GetVendor() const noexcept { return mstr_Vendor; }
 
     /**
-     * @brief Get product version name
+     * @brief Get the hardware product version string.
      *
-     * @param None
-     *
-     * @return A std::string - The product version name
+     * @return Const reference to the product version string
      */
-    std::string fstr_GetVersion() const;
-
-    #ifdef SYSTEM_INSTALL
-
-    /**
-     * @brief Get product serial number
-     *
-     * @param None
-     *
-     * @return A std::string - The product serial number
-     */
-    std::string fstr_GetSerial() const;
-
-    /**
-     * @brief Get product uuid number
-     *
-     * @param None
-     *
-     * @return A std::string - The product uuid number
-     */
-    std::string fstr_GetUuid() const;
-    #endif // SYSTEM_INSTALL
+    const std::string& fstr_GetVersion() const noexcept { return mstr_Version; }
 
 private:
-    mutable std::string mstr_Name;
-    mutable std::string mstr_Family;
-    mutable std::string mstr_Sku;
-    mutable std::string mstr_Vendor;
-    mutable std::string mstr_Version;
-    #ifdef SYSTEM_INSTALL
-    mutable std::string mstr_Serial;
-    mutable std::string mstr_Uuid;
-    #endif // SYSTEM_INSTALL
-
+    std::string mstr_Name;
+    std::string mstr_Family;
+    std::string mstr_Sku;
+    std::string mstr_Vendor;
+    std::string mstr_Version;
 };
 
-#endif
+#endif // CPPNEOFETCH_CPRODUCTINFO_HPP

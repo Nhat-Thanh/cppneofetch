@@ -1,66 +1,71 @@
 #include "CProductInfo.hpp"
-#include "CFileReader.hpp"
+#include "helpers/FileReader.hpp"
+#include "helpers/StringHandler.hpp"
 
-#define PATH_PRODUCT_FAMILY_VFS  "/sys/devices/virtual/dmi/id/product_family"
-#define PATH_PRODUCT_NAME_VFS    "/sys/devices/virtual/dmi/id/product_name"
-#define PATH_PRODUCT_SERIAL_VFS  "/sys/devices/virtual/dmi/id/product_serial"
-#define PATH_PRODUCT_SKU_VFS     "/sys/devices/virtual/dmi/id/product_sku"
-#define PATH_PRODUCT_UUID_VFS    "/sys/devices/virtual/dmi/id/product_uuid"
-#define PATH_PRODUCT_VERSION_VFS "/sys/devices/virtual/dmi/id/product_version"
-#define PATH_PRODUCT_VENDOR_VFS  "/sys/devices/virtual/dmi/id/sys_vendor"
+#include <array>
 
+namespace {
 
+constexpr const char* kpc_DmiProductName      = "/sys/devices/virtual/dmi/id/product_name";
+constexpr const char* kpc_DmiProductFamily    = "/sys/devices/virtual/dmi/id/product_family";
+constexpr const char* kpc_DmiProductSku       = "/sys/devices/virtual/dmi/id/product_sku";
+constexpr const char* kpc_DmiSysVendor        = "/sys/devices/virtual/dmi/id/sys_vendor";
+constexpr const char* kpc_DmiProductVersion   = "/sys/devices/virtual/dmi/id/product_version";
+constexpr const char* kpc_DmiBoardName        = "/sys/devices/virtual/dmi/id/board_name";
+constexpr const char* kpc_DmiBoardVendor      = "/sys/devices/virtual/dmi/id/board_vendor";
+constexpr const char* kpc_PathDeviceTreeModel = "/proc/device-tree/model";
+
+constexpr std::string_view ksv_TrimWhitespaceAndNul(" \t\r\n\0", 5U);
+
+constexpr std::array<std::string_view, 9> ska_OemPlaceholders = {
+    "To Be Filled By O.E.M.",
+    "To be filled by O.E.M.",
+    "Default string",
+    "System Product Name",
+    "System Version",
+    "None",
+    "Not Specified",
+    "Not Available",
+    "Undefined"
+};
+
+std::string sfstr_ReadDmiField(const char* kpc_Path) {
+    std::string str_Val;
+    if (!FileReader::fb_ReadFirstLine(str_Val, kpc_Path)) {
+        return {};
+    }
+    StringHandler::fv_Trim(str_Val);
+    for (std::string_view sv_Placeholder : ska_OemPlaceholders) {
+        if (sv_Placeholder == str_Val) {
+            return {};
+        }
+    }
+    return str_Val;
+}
+
+} // namespace
+
+/**
+ * @brief Construct CProductInfo and read DMI / device-tree hardware details.
+ */
 CProductInfo::CProductInfo() {
-}
+    mstr_Name    = sfstr_ReadDmiField(kpc_DmiProductName);
+    mstr_Family  = sfstr_ReadDmiField(kpc_DmiProductFamily);
+    mstr_Sku     = sfstr_ReadDmiField(kpc_DmiProductSku);
+    mstr_Vendor  = sfstr_ReadDmiField(kpc_DmiSysVendor);
+    mstr_Version = sfstr_ReadDmiField(kpc_DmiProductVersion);
 
-std::string CProductInfo::fstr_GetName() const {
     if (mstr_Name.empty()) {
-        CFileReader::fi64_GetLine_nth(mstr_Name, PATH_PRODUCT_NAME_VFS);
+        mstr_Name = sfstr_ReadDmiField(kpc_DmiBoardName);
     }
-    return mstr_Name;
-}
-
-std::string CProductInfo::fstr_GetFamily() const {
-    if (mstr_Family.empty()) {
-        CFileReader::fi64_GetLine_nth(mstr_Family, PATH_PRODUCT_FAMILY_VFS);
+    if (mstr_Name.empty()) {
+        std::string str_DtModel;
+        if (FileReader::fb_ReadFirstLine(str_DtModel, kpc_PathDeviceTreeModel)) {
+            StringHandler::fv_Trim(str_DtModel, ksv_TrimWhitespaceAndNul);
+            mstr_Name = std::move(str_DtModel);
+        }
     }
-    return mstr_Family;
-}
-
-std::string CProductInfo::fstr_GetSku() const {
-    if (mstr_Sku.empty()) {
-        CFileReader::fi64_GetLine_nth(mstr_Sku, PATH_PRODUCT_SKU_VFS);
-    }
-    return mstr_Sku;
-}
-
-std::string CProductInfo::fstr_GetVendor() const {
     if (mstr_Vendor.empty()) {
-        CFileReader::fi64_GetLine_nth(mstr_Vendor, PATH_PRODUCT_VENDOR_VFS);
+        mstr_Vendor = sfstr_ReadDmiField(kpc_DmiBoardVendor);
     }
-    return mstr_Vendor;
 }
-
-std::string CProductInfo::fstr_GetVersion() const {
-    if (mstr_Version.empty()) {
-        CFileReader::fi64_GetLine_nth(mstr_Version, PATH_PRODUCT_VERSION_VFS);
-    }
-    return mstr_Version;
-}
-
-
-#ifdef SYSTEM_INSTALL
-std::string CProductInfo::fstr_GetSerial() const {
-    if (mstr_Serial.empty()) {
-        CFileReader::fi64_GetLine_nth(mstr_Serial, PATH_PRODUCT_SERIAL_VFS);
-    }
-    return mstr_Serial;
-}
-
-std::string CProductInfo::fstr_GetUuid() const {
-    if (mstr_Uuid.empty()) {
-        CFileReader::fi64_GetLine_nth(mstr_Uuid, PATH_PRODUCT_UUID_VFS);
-    }
-    return mstr_Uuid;
-}
-#endif // SYSTEM_INSTALL

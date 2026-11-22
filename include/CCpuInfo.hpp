@@ -1,131 +1,101 @@
-#ifndef _CCPUINFO_HPP_
-#define _CCPUINFO_HPP_
+#ifndef CPPNEOFETCH_CCPUINFO_HPP
+#define CPPNEOFETCH_CCPUINFO_HPP
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 /**
- * @brief A class to get CPU information
+ * @brief A class to get CPU model, core counts, cache size, and frequency.
  */
 class CCpuInfo {
 public:
-    CCpuInfo(uint32_t ui32_CpuId = 0);
-    CCpuInfo(const CCpuInfo&) = default;
-    CCpuInfo& operator=(const CCpuInfo&) = default;
-    CCpuInfo(CCpuInfo&&) = default;
-    CCpuInfo& operator=(CCpuInfo&&) = default;
-    virtual ~CCpuInfo() = default;
+    /**
+     * @brief Construct CCpuInfo and gather CPU details for the target physical CPU ID.
+     *
+     * @param ui32_CpuId - Physical CPU package ID (defaults to 0)
+     */
+    explicit CCpuInfo(uint32_t ui32_CpuId = 0U);
 
     /**
-     * @brief Get the name of CPU
+     * @brief Get the cleaned CPU model name.
      *
-     * Read filesystem and return CPU name
-     *
-     * @param None
-     *
-     * @return A std::string - The CPU name
+     * @return Const reference to the CPU model name string
      */
-    std::string fstr_GetName() const;
+    const std::string& fstr_GetName() const noexcept { return mstr_Name; }
 
     /**
-     * @brief Get the id of CPU
+     * @brief Get the target physical CPU ID.
      *
-     * @param None
-     *
-     * @return An uint32_t number - The CPU ID
+     * @return Physical CPU ID
      */
-    uint32_t fui32_GetCpuId() const;
+    uint32_t fui32_GetCpuId() const noexcept { return mui32_CpuId; }
 
     /**
-     * @brief Get the maximum freqency of CPU
+     * @brief Get the maximum CPU frequency in kHz, if available.
      *
-     * Read filesystem and return the maximum freqency of CPU
-     *
-     * @param None
-     *
-     * @return An uint32_t number - The maximum CPU freqency or 0xFFFFFFFF on errors
+     * @return Optional maximum frequency in kHz
      */
-    uint32_t fui32_GetMaxFreq() const;
+    std::optional<uint64_t> foptui64_GetMaxFreqKhz() const noexcept { return moptui64_MaxFreqKhz; }
 
     /**
-     * @brief Get the minimum freqency of CPU
+     * @brief Get the minimum CPU frequency in kHz, if available.
      *
-     * Read filesystem and return the minimum freqency of CPU
-     *
-     * @param None
-     *
-     * @return An uint32_t number - The minimum CPU freqency or 0xFFFFFFFF on errors
+     * @return Optional minimum frequency in kHz
      */
-    uint32_t fui32_GetMinFreq() const;
+    std::optional<uint64_t> foptui64_GetMinFreqKhz() const noexcept { return moptui64_MinFreqKhz; }
 
     /**
-     * @brief Get the cache size of CPU
+     * @brief Get the CPU cache size in KiB, if available.
      *
-     * Read filesystem and return CPU cache size
-     *
-     * @param None
-     *
-     * @return An uint32_t number - CPU cache size in kB or 0xFFFFFFFF on errors
+     * @return Optional cache size in KiB
      */
-    uint32_t fui32_GetCache() const;
+    std::optional<uint32_t> foptui32_GetCacheKb() const noexcept { return moptui32_CacheKb; }
 
     /**
-     * @brief Get the number of CPU logical cores
+     * @brief Get the number of online logical CPU threads.
      *
-     * Read filesystem and return the number of CPU logical cores
-     *
-     * @param None
-     *
-     * @return An uint32_t number - The number of CPU logical cores or 0xFFFFFFFF on errors
+     * @return Logical core/thread count
      */
-    uint32_t fui32_GetLogicalCores() const;
+    uint32_t fui32_GetLogicalCores() const noexcept { return mui32_LogicalCores; }
+
 
     /**
-     * @brief Get the number of CPU physical cores
+     * @brief Get the number of unique physical CPU cores.
      *
-     * Read filesystem and return the number of CPU physical cores
-     *
-     * @param None
-     *
-     * @return An uint32_t number - The number of CPU physical cores or 0xFFFFFFFF on errors
+     * @return Physical core count
      */
-    uint32_t fui32_GetPhysicalCores() const;
+    uint32_t fui32_GetPhysicalCores() const noexcept { return mui32_PhysicalCores; }
 
 private:
+    // TODO: Support multi-socket system
     /**
-     * @brief Read cpuinfo filesystem and extract field values
-     *
-     * @param None
-     *
-     * @return None
+     * @brief Parse /proc/cpuinfo for model name, cache size, and fallback frequencies.
      */
-    void _fv_ReadCpuInfoFS() const;
+    void fv_ReadCpuInfoFs();
 
+#if 0
+    // TODO: An sysfs approach to get physical and logical cores number, will be useful in future
     /**
-     * @brief Read cpu_max_freq filesystem and get the maximum frequency
-     *
-     * @param None
-     *
-     * @return None
+     * @brief Query sysconf and sysfs topology for logical and physical core counts.
      */
-    void _fv_ReadCpuMaxFreqFS(uint32_t ui32_Processor) const;
+    void fv_ReadCoreTopology();
+#endif
 
+    // TODO: Support multi-socket system
     /**
-     * @brief Read cpu_mix_freq filesystem and get the minimum frequency
-     *
-     * @param None
-     *
-     * @return None
+     * @brief Scan sysfs cpufreq policies for maximum and minimum frequencies.
      */
-    void _fv_ReadCpuMinFreqFS(uint32_t ui32_Processor) const;
+    void fv_ReadFrequencies();
 
-    mutable std::string mstr_Name;
-    mutable uint32_t mui32_CpuId;
-    mutable uint32_t mui32_MaxFreq;
-    mutable uint32_t mui32_MinFreq;
-    mutable uint32_t mui32_Cache;
-    mutable uint32_t mui32_LogicalCores;
-    mutable uint32_t mui32_PhysicalCores;
+    // TODO: Support multi-socket system
+    uint32_t mui32_CpuId;
+    std::string mstr_Name;
+    std::optional<uint64_t> moptui64_MaxFreqKhz{0UL};
+    std::optional<uint64_t> moptui64_MinFreqKhz{0UL};
+    std::optional<uint32_t> moptui32_CacheKb{0UL};
+    uint32_t mui32_LogicalCores{0U};
+    uint32_t mui32_PhysicalCores{0U};
 };
 
-#endif
+#endif // CPPNEOFETCH_CCPUINFO_HPP
