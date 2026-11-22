@@ -1,168 +1,236 @@
 #include "CCpuInfo.hpp"
 #include "CGpuInfo.hpp"
+#include "CHostInfo.hpp"
 #include "CMemInfo.hpp"
-#include "CProductInfo.hpp"
-#include "CTerminalInfo.hpp"
 #include "COsInfo.hpp"
 #include "CPackageManInfo.hpp"
-#include "CHostInfo.hpp"
-#include "CStringHelper.hpp"
-#include "Definitions.hpp"
-#include "Colors.hpp"
-#include "Logo.hpp"
-#include <unistd.h>
+#include "CProductInfo.hpp"
+#include "CTerminalInfo.hpp"
+#include "utils/Colors.hpp"
+#include "utils/Definitions.hpp"
+#include "utils/Logo.hpp"
+#include "helpers/StringHandler.hpp"
+
+#include <algorithm>
 #include <iostream>
+#include <iterator>
+#include <utility>
 
-static std::string sfstr_FormatHost(const CHostInfo& host) {
-    return CStringHelper::fstr_Format(CYAN "%s" NORMAL "@" CYAN "%s" NORMAL,
-                                      host.fstr_GetUser().c_str(),
-                                      host.fstr_GetName().c_str());
+namespace {
+
+namespace Labels {
+
+constexpr const char* kpc_Os         = "OS: ";
+constexpr const char* kpc_Model      = "Model: ";
+constexpr const char* kpc_Vendor     = "Vendor: ";
+constexpr const char* kpc_Kernel     = "Kernel: ";
+constexpr const char* kpc_Uptime     = "Uptime: ";
+constexpr const char* kpc_Packages   = "Packages: ";
+constexpr const char* kpc_Shell      = "Shell: ";
+constexpr const char* kpc_Terminal   = "Terminal: ";
+constexpr const char* kpc_Cpu        = "CPU: ";
+constexpr const char* kpc_GpuSingle  = "GPU: ";
+constexpr const char* kpc_GpuMulti   = "GPU %zu: ";
+constexpr const char* kpc_Memory     = "Memory: ";
+constexpr const char* kpc_UnknownCpu = "Unknown CPU";
+constexpr const char* kpc_UnknownPkg = "0 (unknown)";
+
+} // namespace Labels
+
+namespace Formats {
+
+constexpr const char* kpc_Host          = "%s%s%s@%s%s%s";
+constexpr const char* kpc_PkgEntry      = "%u (%s)";
+constexpr const char* kpc_PkgSep        = ", ";
+constexpr const char* kpc_CpuWithFreq   = "%s (%u) @ %.2fGHz";
+constexpr const char* kpc_CpuNoFreq     = "%s (%u)";
+constexpr const char* kpc_GpuFreqSuffix = " @ %.2fGHz";
+constexpr const char* kpc_Memory        = "%lluMiB / %lluMiB (%.2f%%)";
+constexpr const char* kpc_UptimeUnit    = "%llu %s%s";
+constexpr const char* kpc_UptimeSec     = "%llu sec%s";
+constexpr const char* kpc_PluralSuffix  = "s";
+constexpr const char* kpc_Empty         = "";
+constexpr char        kc_SepChar        = '-';
+constexpr char        kc_PadChar        = ' ';
+
+} // namespace Formats
+
+typedef struct {
+    std::string str_Label;
+    std::string str_Value;
+} info_row_t;
+
+std::string fstr_FormatHost(const CHostInfo& kr_Host) {
+    return StringHandler::fstr_Format(Formats::kpc_Host,
+                                      Colors::kpc_Cyan, kr_Host.fstr_GetUser().c_str(), Colors::kpc_Normal,
+                                      Colors::kpc_Cyan, kr_Host.fstr_GetName().c_str(), Colors::kpc_Normal);
 }
 
-static std::string sfstr_FormatPkgMan(const CPackageManInfo& pkgman) {
-    return CStringHelper::fstr_Format("%d (%s)",
-                                      pkgman.fui32_CountPkgs(),
-                                      pkgman.fstr_GetName().c_str());
+std::string fstr_FormatPkgMan(const CPackageManInfo& kr_PkgMan) {
+    const auto& krvec_Managers = kr_PkgMan.fkrvec_GetManagers();
+    if (krvec_Managers.empty()) {
+        return Labels::kpc_UnknownPkg;
+    }
+    std::string str_Out;
+    for (std::size_t ui64_Idx = 0U; ui64_Idx < krvec_Managers.size(); ++ui64_Idx) {
+        if (0U < ui64_Idx) {
+            str_Out.append(Formats::kpc_PkgSep);
+        }
+        str_Out.append(StringHandler::fstr_Format(Formats::kpc_PkgEntry,
+                                                  krvec_Managers[ui64_Idx].ui32_Count,
+                                                  krvec_Managers[ui64_Idx].str_Name.c_str()));
+    }
+    return str_Out;
 }
 
-static std::string sfstr_FormatCpu(const CCpuInfo& cpu) {
-    return CStringHelper::fstr_Format("%s (%d) @ %.2fGHz",
-                                      cpu.fstr_GetName().c_str(),
-                                      cpu.fui32_GetLogicalCores(),
-                                      cpu.fui32_GetMaxFreq() / 1000000.0);
+std::string fstr_FormatCpu(const CCpuInfo& kr_Cpu) {
+    const std::string& krstr_Name =
+        kr_Cpu.fstr_GetName().empty() ? std::string(Labels::kpc_UnknownCpu) : kr_Cpu.fstr_GetName();
+    if (const auto optui64_FreqKhz = kr_Cpu.foptui64_GetMaxFreqKhz()) {
+        return StringHandler::fstr_Format(Formats::kpc_CpuWithFreq,
+                                          krstr_Name.c_str(),
+                                          kr_Cpu.fui32_GetLogicalCores(),
+                                          static_cast<double>(*optui64_FreqKhz) / Units::kd_KhzPerGhz);
+    }
+    return StringHandler::fstr_Format(Formats::kpc_CpuNoFreq,
+                                      krstr_Name.c_str(),
+                                      kr_Cpu.fui32_GetLogicalCores());
 }
 
-static std::string sfstr_FormatMem(const CMemInfo& mem) {
-    return CStringHelper::fstr_Format("%dMiB / %dMiB (%.2f%)",
-                                      mem.fui32_GetUsed() / 1024U,
-                                      mem.fui32_GetTotal() / 1024U,
-                                      100.0f * mem.fui32_GetUsed() / mem.fui32_GetTotal());
+std::string fstr_FormatMem(const CMemInfo& kr_Mem) {
+    const uint64_t ui64_TotalMib = kr_Mem.fui64_GetTotal() / Units::kui64_KibPerMib;
+    const uint64_t ui64_UsedMib = kr_Mem.fui64_GetUsed() / Units::kui64_KibPerMib;
+    const double d_Percent = (static_cast<double>(kr_Mem.fui64_GetUsed()) / 
+                              static_cast<double>(kr_Mem.fui64_GetTotal()) * 
+                              Units::kd_PercentScale);
+    return StringHandler::fstr_Format(Formats::kpc_Memory,
+                                      static_cast<unsigned long long>(ui64_UsedMib),
+                                      static_cast<unsigned long long>(ui64_TotalMib),
+                                      d_Percent);
 }
 
-static std::string sfstr_FormatUptime(uint64_t ui64_Uptimes) {
-    std::string str_Uptime;
+std::string fstr_FormatUptime(uint64_t ui64_TotalSeconds) {
     typedef struct {
         const char* kpc_Unit;
-        uint32_t ui32_InSeconds;
+        uint64_t ui64_InSeconds;
     } unit_in_sec_t;
-    std::vector<unit_in_sec_t> vec_Units = {
-        { "day",  60 * 60 * 24 },
-        { "hour", 60 * 60      },
-        { "min",  60           }
+
+    constexpr unit_in_sec_t ka_Units[] = {
+        { "day",  Units::kui64_SecPerDay  },
+        { "hour", Units::kui64_SecPerHour },
+        { "min",  Units::kui64_SecPerMin  },
     };
-    for (const unit_in_sec_t& unit : vec_Units) {
-        uint64_t ui64_time = ui64_Uptimes / unit.ui32_InSeconds;
-        if (0 != ui64_time) {
-            std::string str;
-            if (1 == ui64_time) {
-                CStringHelper::fv_Format(str, "%d %s ", ui64_time, unit.kpc_Unit);
-            } else {
-                CStringHelper::fv_Format(str, "%d %ss ", ui64_time, unit.kpc_Unit);
+
+    std::string str_Uptime;
+    uint64_t ui64_Rem = ui64_TotalSeconds;
+    for (const unit_in_sec_t& kr_Unit : ka_Units) {
+        const uint64_t ui64_Val = ui64_Rem / kr_Unit.ui64_InSeconds;
+        if (0ULL < ui64_Val) {
+            if (!str_Uptime.empty()) {
+                str_Uptime.push_back(Formats::kc_PadChar);
             }
-            str_Uptime.append(str);
+            str_Uptime.append(StringHandler::fstr_Format(
+                Formats::kpc_UptimeUnit,
+                static_cast<unsigned long long>(ui64_Val),
+                kr_Unit.kpc_Unit,
+                (1ULL == ui64_Val) ? Formats::kpc_Empty : Formats::kpc_PluralSuffix));
         }
-        ui64_Uptimes %= unit.ui32_InSeconds;
+        ui64_Rem %= kr_Unit.ui64_InSeconds;
+    }
+
+    if (str_Uptime.empty()) {
+        str_Uptime = StringHandler::fstr_Format(
+            Formats::kpc_UptimeSec,
+            static_cast<unsigned long long>(ui64_Rem),
+            (1ULL == ui64_Rem) ? Formats::kpc_Empty : Formats::kpc_PluralSuffix);
     }
     return str_Uptime;
 }
 
-static std::string sfstr_GetColorBar() {
+std::string fstr_GetColorBar() {
     std::string str_ColorBar;
-    std::string str_Color;
-    for (int i32_ColorNumber = 8; i32_ColorNumber < 16; ++i32_ColorNumber) {
-        CStringHelper::fv_Format(str_Color, "\e[48;5;%dm   ", i32_ColorNumber);
-        str_ColorBar.append(str_Color);
+    for (int i32_ColorNumber = Colors::ki32_BrightBgStart;
+         i32_ColorNumber < Colors::ki32_BrightBgEnd;
+         ++i32_ColorNumber) {
+        str_ColorBar.append(StringHandler::fstr_Format(Colors::kpc_Bg256Fmt, i32_ColorNumber));
     }
-    CStringHelper::fv_Format(str_ColorBar, "%s%s", str_ColorBar.c_str(), NORMAL);
+    str_ColorBar.append(Colors::kpc_Normal);
     return str_ColorBar;
 }
 
+} // namespace
+
 int main() {
-    CCpuInfo cpu;
-    CGpuInfo gpu;
-    CMemInfo mem;
-    CProductInfo product;
-    CTerminalInfo terminal;
-    COsInfo os;
-    CPackageManInfo pkgman;
-    CHostInfo host;
+    const CHostInfo host;
+    const COsInfo os;
+    const CProductInfo product;
+    const CPackageManInfo pkgman;
+    const CTerminalInfo terminal;
+    const CCpuInfo cpu;
+    const CGpuInfo gpu;
+    const CMemInfo mem;
 
-    std::vector<std::string> vecstr_Fields;
-    vecstr_Fields.emplace_back("");     // user@host
-    vecstr_Fields.emplace_back("");     // ---------
-    vecstr_Fields.emplace_back("OS: ");
-    vecstr_Fields.emplace_back("Model: ");
-    vecstr_Fields.emplace_back("Vendor: ");
-    vecstr_Fields.emplace_back("Kernel: ");
-    vecstr_Fields.emplace_back("Uptime: ");
-    vecstr_Fields.emplace_back("Packages: ");
-    vecstr_Fields.emplace_back("Shell: ");
-    vecstr_Fields.emplace_back("Terminal: ");
-    vecstr_Fields.emplace_back("CPU: ");
-    if (1 < gpu.fvecstr_GetNames().size()) {
-        for (size_t ui64_Idx = 0; ui64_Idx < gpu.fvecstr_GetNames().size(); ++ui64_Idx) {
-            vecstr_Fields.emplace_back(CStringHelper::fstr_Format("GPU %d: ", ui64_Idx + 1));
+    std::vector<info_row_t> vec_Rows;
+    vec_Rows.push_back({ Formats::kpc_Empty, fstr_FormatHost(host) });
+
+    const std::size_t ui64_SepLen = host.fstr_GetUser().size() + host.fstr_GetName().size() + 1U;
+    vec_Rows.push_back({ Formats::kpc_Empty, std::string(ui64_SepLen, Formats::kc_SepChar) });
+
+    auto fn_AddIfNotEmpty = [&](const char* kpc_Label, const std::string& krstr_Val) {
+        if (!krstr_Val.empty()) {
+            vec_Rows.push_back({ kpc_Label, krstr_Val });
         }
-    } else if (1 == gpu.fvecstr_GetNames().size()) {
-        vecstr_Fields.emplace_back("GPU: ");
-    }
-    vecstr_Fields.emplace_back("Memnory: ");
-    vecstr_Fields.emplace_back("");     // empty line
-    vecstr_Fields.emplace_back("");     // color bar
+    };
 
-    std::vector<std::string> vecstr_Infos;
-    vecstr_Infos.emplace_back(sfstr_FormatHost(host));
-    vecstr_Infos.emplace_back(std::string(host.fstr_GetUser().size() + host.fstr_GetName().size() + 1, '-'));
-    vecstr_Infos.emplace_back(os.fstr_GetName());
-    vecstr_Infos.emplace_back(product.fstr_GetName());
-    vecstr_Infos.emplace_back(product.fstr_GetVendor());
-    vecstr_Infos.emplace_back(os.fstr_GetKernel());
-    vecstr_Infos.emplace_back(sfstr_FormatUptime(os.fui64_GetUptime()));
-    vecstr_Infos.emplace_back(sfstr_FormatPkgMan(pkgman));
-    vecstr_Infos.emplace_back(os.fstr_GetShell());
-    vecstr_Infos.emplace_back(terminal.fstr_GetName());
-    vecstr_Infos.emplace_back(sfstr_FormatCpu(cpu));
-    if (0 < gpu.fvecstr_GetNames().size()) {
-        for (size_t ui64_Idx = 0; ui64_Idx < gpu.fvecstr_GetNames().size(); ++ui64_Idx) {
-            if (UINT32_INIT != gpu.fvecui32_GetMaxGpuFreqMhz()[ui64_Idx]) {
-                vecstr_Infos.emplace_back(
-                    CStringHelper::fstr_Format("%s @ %.2fGHz",
-                                               gpu.fvecstr_GetNames()[ui64_Idx].c_str(),
-                                               gpu.fvecui32_GetMaxGpuFreqMhz()[ui64_Idx] / 1000.0));
-            } else {
-                vecstr_Infos.emplace_back(gpu.fvecstr_GetNames()[ui64_Idx]);
-            }
+    fn_AddIfNotEmpty(Labels::kpc_Os, os.fstr_GetName());
+    fn_AddIfNotEmpty(Labels::kpc_Model, product.fstr_GetName());
+    fn_AddIfNotEmpty(Labels::kpc_Vendor, product.fstr_GetVendor());
+    fn_AddIfNotEmpty(Labels::kpc_Kernel, os.fstr_GetKernel());
+    vec_Rows.push_back({ Labels::kpc_Uptime, fstr_FormatUptime(os.fui64_GetUptime()) });
+    vec_Rows.push_back({ Labels::kpc_Packages, fstr_FormatPkgMan(pkgman) });
+    fn_AddIfNotEmpty(Labels::kpc_Shell, os.fstr_GetShell());
+    fn_AddIfNotEmpty(Labels::kpc_Terminal, terminal.fstr_GetName());
+    vec_Rows.push_back({ Labels::kpc_Cpu, fstr_FormatCpu(cpu) });
+
+    const auto& krvec_Gpus = gpu.fkrvec_GetDevices();
+    for (std::size_t ui64_Idx = 0U; ui64_Idx < krvec_Gpus.size(); ++ui64_Idx) {
+        const std::string str_Label = (1U == krvec_Gpus.size()) 
+                                      ? Labels::kpc_GpuSingle 
+                                      : StringHandler::fstr_Format(Labels::kpc_GpuMulti, ui64_Idx + 1U);
+        std::string str_Value = krvec_Gpus[ui64_Idx].str_Name;
+        if (krvec_Gpus[ui64_Idx].optui32_MaxFreqMhz) {
+            str_Value.append(StringHandler::fstr_Format(
+                Formats::kpc_GpuFreqSuffix,
+                static_cast<double>(*krvec_Gpus[ui64_Idx].optui32_MaxFreqMhz) / Units::kd_MhzPerGhz));
         }
+        vec_Rows.push_back({ str_Label, std::move(str_Value) });
     }
-    vecstr_Infos.emplace_back(sfstr_FormatMem(mem));
-    vecstr_Infos.emplace_back("");
-    vecstr_Infos.emplace_back(sfstr_GetColorBar());
 
-    if (vecstr_Fields.size() != vecstr_Infos.size()) {
-        std::cerr << "Number of fields are different from number of infos" << std::endl;
-        return EXIT_FAILURE;
-    }
-    size_t ui64_LogoRow = 0UL, ui64_InfoRow = 0UL;
+    vec_Rows.push_back({ Labels::kpc_Memory, fstr_FormatMem(mem) });
+    vec_Rows.push_back({ Formats::kpc_Empty, Formats::kpc_Empty });
+    vec_Rows.push_back({ Formats::kpc_Empty, fstr_GetColorBar() });
 
-    while (ui64_InfoRow < vecstr_Infos.size() || ui64_LogoRow < vecstr_Logo.size()) {
-        if (ui64_InfoRow == vecstr_Infos.size()) {
-            std::cout << CYAN << vecstr_Logo[ui64_LogoRow] << std::endl;
-            ++ui64_LogoRow;
+    constexpr std::size_t kui64_LogoRows = std::size(ka_Logo);
+    const std::size_t ui64_LogoWidth = kui64_LogoRows == 0U
+        ? 0U
+        : StringHandler::fui64_Utf8DisplayWidth(ka_Logo[0]);
+    const std::string str_LogoPad(ui64_LogoWidth, Formats::kc_PadChar);
 
-        } else if (ui64_LogoRow == vecstr_Logo.size()) {
-            std::cout << NORMAL << std::string(vecstr_Logo.front().size(), ' ');
-            std::cout << CYAN << vecstr_Fields[ui64_InfoRow];
-            std::cout << NORMAL << vecstr_Infos[ui64_InfoRow] << std::endl;
-            ++ui64_InfoRow;
-
+    const std::size_t ui64_TotalLines = std::max(kui64_LogoRows, vec_Rows.size());
+    for (std::size_t ui64_Idx = 0U; ui64_Idx < ui64_TotalLines; ++ui64_Idx) {
+        if (kui64_LogoRows > ui64_Idx) {
+            std::cout << Colors::kpc_Cyan << ka_Logo[ui64_Idx];
         } else {
-            std::cout << CYAN << vecstr_Logo[ui64_LogoRow];
-            std::cout << CYAN << vecstr_Fields[ui64_InfoRow];
-            std::cout << NORMAL << vecstr_Infos[ui64_InfoRow] << std::endl;
-            ++ui64_LogoRow;
-            ++ui64_InfoRow;
+            std::cout << Colors::kpc_Normal << str_LogoPad;
         }
+
+        if (vec_Rows.size() > ui64_Idx) {
+            std::cout << Colors::kpc_Cyan << vec_Rows[ui64_Idx].str_Label
+                      << Colors::kpc_Normal << vec_Rows[ui64_Idx].str_Value;
+        }
+        std::cout << '\n';
     }
+    std::cout << Colors::kpc_Normal << std::flush;
 
     return 0;
 }
