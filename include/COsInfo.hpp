@@ -1,81 +1,80 @@
-#ifndef _COSINFO_HPP_
-#define _COSINFO_HPP_
+#ifndef CPPNEOFETCH_COSINFO_HPP
+#define CPPNEOFETCH_COSINFO_HPP
 
-#include <string>
 #include <cstdint>
+#include <string>
 
 /**
- * @brief A class to get operating system information
+ * @brief A class to get operating system, kernel, shell, and uptime information.
  */
 class COsInfo {
 public:
+    /**
+     * @brief Construct COsInfo and eagerly load OS, kernel, shell, and uptime details.
+     */
     COsInfo();
-    COsInfo(const COsInfo&) = default;
-    COsInfo& operator=(const COsInfo&) = default;
-    COsInfo(COsInfo&&) = default;
-    COsInfo& operator=(COsInfo&&) = default;
-    virtual ~COsInfo() = default;
-
 
     /**
-     * @brief Get the OS name
+     * @brief Get the operating system display name (PRETTY_NAME or NAME).
      *
-     * @param None
-     *
-     * @return A std::string - OS name
+     * @return Const reference to the OS name string
      */
-    std::string fstr_GetName() const;
+    const std::string& fstr_GetName() const noexcept { return mstr_Name; }
 
     /**
-     * @brief Get kernel version of OS
+     * @brief Get the operating system identifier (ID from os-release).
      *
-     * @param None
-     *
-     * @return A std::string - kernel version
+     * @return Const reference to the OS ID string
      */
-    std::string fstr_GetKernel() const;
+    const std::string& fstr_GetId() const noexcept { return mstr_Id; }
 
     /**
-     * @brief Get name of running shell (The application runs this program)
+     * @brief Get the Linux kernel release string.
      *
-     * @param None
-     *
-     * @return A std::string - shell name
+     * @return Const reference to the kernel release string
      */
-    std::string fstr_GetShell() const;
+    const std::string& fstr_GetKernel() const noexcept { return mstr_Kernel; }
 
     /**
-     * @brief Get uptime of system in seconds
+     * @brief Get the user's shell name.
      *
-     * @param None
-     *
-     * @return An uint64_t number - uptime in seconds
+     * @return Const reference to the shell name string
      */
-    uint64_t fui64_GetUptime() const;
+    const std::string& fstr_GetShell() const noexcept { return mstr_Shell; }
+
+    /**
+     * @brief Get the system uptime in seconds.
+     *
+     * @return System uptime in seconds
+     */
+    uint64_t fui64_GetUptime() const noexcept { return mui64_Uptime; }
 
 private:
     /**
-     * @brief Read os-release filesystem and get OS name
-     *
-     * @param None
-     *
-     * @return None
+     * @brief Read /etc/os-release (or /usr/lib/os-release) for OS name and ID.
      */
-    void _fv_ReadOsReleaseFs() const;
+    void fv_ReadOsReleaseFs();
 
     /**
-     * @brief Read /proc filesystem to get name of running shell process
-     *
-     * @param None
-     *
-     * @return None
+     * @brief Query uname(2) to retrieve the kernel release string.
      */
-    void _fv_ReadShellFs() const;
+    void fv_ReadKernel();
 
-    mutable std::string mstr_Name;
-    mutable std::string mstr_Kernel;
-    mutable std::string mstr_Shell;
-    mutable uint64_t mui64_Uptime;
+    /**
+     * @brief Detect the active shell from $SHELL or parent process comm.
+     */
+    void fv_ReadShellFs();
+
+    /**
+     * @brief Query sysinfo(2) to retrieve system uptime in seconds.
+     */
+    void fv_ReadUptime();
+
+    std::string mstr_Name;
+    std::string mstr_Id;
+    std::string mstr_Kernel;
+    std::string mstr_Shell;
+    uint64_t mui64_Uptime{0ULL};
 };
 
-#endif
+#endif // CPPNEOFETCH_COSINFO_HPP

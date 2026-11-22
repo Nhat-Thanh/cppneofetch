@@ -1,41 +1,35 @@
-#ifndef _CHOSTINFO_HPP_
-#define _CHOSTINFO_HPP_
+#ifndef CPPNEOFETCH_CHOSTINFO_HPP
+#define CPPNEOFETCH_CHOSTINFO_HPP
 
 #include <string>
 
 /**
- * @brief A class to get host information
+ * @brief A class to get host name and current user name.
  */
 class CHostInfo {
 public:
+    /**
+     * @brief Construct CHostInfo and eagerly resolve host and user names.
+     */
     CHostInfo();
-    CHostInfo(const CHostInfo&) = default;
-    CHostInfo& operator=(const CHostInfo&) = default;
-    CHostInfo(CHostInfo&&) = default;
-    CHostInfo& operator=(CHostInfo&&) = default;
-    virtual ~CHostInfo() = default;
 
     /**
-     * @brief Get the host name
+     * @brief Get the system host name.
      *
-     * @param None
-     *
-     * @return A std::string - The host name
+     * @return Const reference to the host name string
      */
-    std::string fstr_GetName() const;
+    const std::string& fstr_GetName() const noexcept { return mstr_Name; }
 
     /**
-     * @brief Get the user name
+     * @brief Get the current user name.
      *
-     * @param None
-     *
-     * @return A std::string - The user name
+     * @return Const reference to the user name string
      */
-    std::string fstr_GetUser() const;
+    const std::string& fstr_GetUser() const noexcept { return mstr_User; }
 
 private:
-    mutable std::string mstr_Name;
-    mutable std::string mstr_User;
+    std::string mstr_Name;
+    std::string mstr_User;
 };
 
-#endif
+#endif // CPPNEOFETCH_CHOSTINFO_HPP

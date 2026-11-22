@@ -1,31 +1,27 @@
-#ifndef _CTERMINALINFO_HPP_
-#define _CTERMINALINFO_HPP_
+#ifndef CPPNEOFETCH_CTERMINALINFO_HPP
+#define CPPNEOFETCH_CTERMINALINFO_HPP
 
 #include <string>
 
 /**
- * @brief A class to get running terminal application information
+ * @brief A class to detect the running terminal emulator or TTY name.
  */
 class CTerminalInfo {
 public:
+    /**
+     * @brief Construct CTerminalInfo and detect the active terminal application.
+     */
     CTerminalInfo();
-    CTerminalInfo(const CTerminalInfo&) = default;
-    CTerminalInfo& operator=(const CTerminalInfo&) = default;
-    CTerminalInfo(CTerminalInfo&&) = default;
-    CTerminalInfo& operator=(CTerminalInfo&&) = default;
-    virtual ~CTerminalInfo() = default;
 
     /**
-     * @brief Get running termial application name
+     * @brief Get the detected terminal application or TTY name.
      *
-     * @param None
-     *
-     * @return A std::string - The terminal application name
+     * @return Const reference to the terminal name string
      */
-    std::string fstr_GetName() const;
+    const std::string& fstr_GetName() const noexcept { return mstr_Name; }
 
 private:
-    mutable std::string mstr_Name;
+    std::string mstr_Name;
 };
 
-#endif
+#endif // CPPNEOFETCH_CTERMINALINFO_HPP
