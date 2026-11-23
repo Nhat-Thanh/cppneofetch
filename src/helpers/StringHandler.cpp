@@ -54,6 +54,47 @@ void fv_Trim(std::string& rstr_Target, const std::string_view& krsv_Chars) {
 }
 
 /**
+ * @brief Remove leading characters matching any character in krsv_Chars in place.
+ *
+ * @param rstr_Target - The string_view to modify in place
+ * @param krsv_Chars - Set of characters to strip from the left (defaults to whitespace)
+ */
+void fv_LeftTrimStrView(std::string_view& rstr_Target, const std::string_view& krsv_Chars) {
+    const std::size_t ui64_Pos = rstr_Target.find_first_not_of(krsv_Chars);
+    if (std::string_view::npos == ui64_Pos) {
+        rstr_Target = std::string_view{};
+    } else {
+        rstr_Target.remove_prefix(ui64_Pos);
+    }
+}
+
+/**
+ * @brief Remove trailing characters matching any character in krsv_Chars in place.
+ *
+ * @param rstr_Target - The string_view to modify in place
+ * @param krsv_Chars - Set of characters to strip from the right (defaults to whitespace)
+ */
+void fv_RightTrimStrView(std::string_view& rstr_Target, const std::string_view& krsv_Chars) {
+    const std::size_t ui64_Pos = rstr_Target.find_last_not_of(krsv_Chars);
+    if (std::string_view::npos == ui64_Pos) {
+        rstr_Target = std::string_view{};
+    } else {
+        rstr_Target.remove_suffix(rstr_Target.size() - ui64_Pos - 1);
+    }
+}
+
+/**
+ * @brief Remove both leading and trailing characters matching krsv_Chars in place.
+ *
+ * @param rstr_Target - The string_view to modify in place
+ * @param krsv_Chars - Set of characters to strip from both ends (defaults to whitespace)
+ */
+void fv_TrimStrView(std::string_view& rstr_Target, const std::string_view& krsv_Chars) {
+    fv_RightTrimStrView(rstr_Target, krsv_Chars);
+    fv_LeftTrimStrView(rstr_Target, krsv_Chars);
+}
+
+/**
  * @brief Replace all occurrences of a substring within a source string.
  *
  * @param krsv_Src - The source string view

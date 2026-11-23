@@ -40,6 +40,33 @@ void fv_Trim(std::string& rstr_Target,
              const std::string_view& krsv_Chars = Chars::ksv_Whitespace);
 
 /**
+ * @brief Remove leading characters matching any character in krsv_Chars in place.
+ *
+ * @param rstr_Target - The string_view to modify in place
+ * @param krsv_Chars - Set of characters to strip from the left (defaults to whitespace)
+ */
+void fv_LeftTrimStrView(std::string_view& rstr_Target,
+                        const std::string_view& krsv_Chars = Chars::ksv_Whitespace);
+
+/**
+ * @brief Remove trailing characters matching any character in krsv_Chars in place.
+ *
+ * @param rstr_Target - The string_view to modify in place
+ * @param krsv_Chars - Set of characters to strip from the right (defaults to whitespace)
+ */
+void fv_RightTrimStrView(std::string_view& rstr_Target,
+                         const std::string_view& krsv_Chars = Chars::ksv_Whitespace);
+
+/**
+ * @brief Remove both leading and trailing characters matching krsv_Chars in place.
+ *
+ * @param rstr_Target - The string_view to modify in place
+ * @param krsv_Chars - Set of characters to strip from both ends (defaults to whitespace)
+ */
+void fv_TrimStrView(std::string_view& rstr_Target,
+                    const std::string_view& krsv_Chars = Chars::ksv_Whitespace);
+
+/**
  * @brief Replace all occurrences of a substring within a source string.
  *
  * @param krsv_Src - The source string view

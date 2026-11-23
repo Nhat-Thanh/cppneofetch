@@ -3,7 +3,8 @@
 #include <iostream>
 
 void fv_RunTestStringHandler() {
-    // 1. fv_LeftTrim: normal, custom chars, already trimmed, empty, all-matching
+
+    // fv_LeftTrim: normal, custom chars, already trimmed, empty, all-matching
     {
         std::string str_Val = "  \t\r\nhello  ";
         StringHandler::fv_LeftTrim(str_Val);
@@ -26,7 +27,7 @@ void fv_RunTestStringHandler() {
         TEST_CHECK(str_Val.empty());
     }
 
-    // 2. fv_RightTrim: normal, custom chars, already trimmed, empty, all-matching
+    // fv_RightTrim: normal, custom chars, already trimmed, empty, all-matching
     {
         std::string str_Val = "  hello \t\r\n";
         StringHandler::fv_RightTrim(str_Val);
@@ -49,7 +50,7 @@ void fv_RunTestStringHandler() {
         TEST_CHECK(str_Val.empty());
     }
 
-    // 3. fv_Trim: normal, internal whitespace preserved, all-matching, empty
+    // fv_Trim: normal, internal whitespace preserved, all-matching, empty
     {
         std::string str_Val = " \t hello world \r\n ";
         StringHandler::fv_Trim(str_Val);
@@ -64,7 +65,68 @@ void fv_RunTestStringHandler() {
         TEST_CHECK(str_Val.empty());
     }
 
-    // 4. fstr_ReplaceAll: normal, no match, empty src, empty from, empty to, self-overlapping
+    // fv_LeftTrimStrView: normal, custom chars, already trimmed, empty, all-matching
+    {
+        std::string_view sv = "  \t\r\nhello  ";
+        StringHandler::fv_LeftTrimStrView(sv);
+        TEST_CHECK_EQ("hello  ", sv);
+
+        sv = "///usr/bin";
+        StringHandler::fv_LeftTrimStrView(sv, "/");
+        TEST_CHECK_EQ("usr/bin", sv);
+
+        sv = "abc";
+        StringHandler::fv_LeftTrimStrView(sv, "xyz");
+        TEST_CHECK_EQ("abc", sv);
+
+        sv = "";
+        StringHandler::fv_LeftTrimStrView(sv);
+        TEST_CHECK(sv.empty());
+
+        sv = "xxxx";
+        StringHandler::fv_LeftTrimStrView(sv, "x");
+        TEST_CHECK(sv.empty());
+    }
+
+    // fv_RightTrimStrView: normal, custom chars, already trimmed, empty, all-matching
+    {
+        std::string_view sv = "  hello \t\r\n";
+        StringHandler::fv_RightTrimStrView(sv);
+        TEST_CHECK_EQ("  hello", sv);
+
+        sv = "gnome-terminal---";
+        StringHandler::fv_RightTrimStrView(sv, "-");
+        TEST_CHECK_EQ("gnome-terminal", sv);
+
+        sv = "abc";
+        StringHandler::fv_RightTrimStrView(sv, "xyz");
+        TEST_CHECK_EQ("abc", sv);
+
+        sv = "";
+        StringHandler::fv_RightTrimStrView(sv);
+        TEST_CHECK(sv.empty());
+
+        sv = "yyyy";
+        StringHandler::fv_RightTrimStrView(sv, "y");
+        TEST_CHECK(sv.empty());
+    }
+
+    // fv_TrimStrView: normal, internal whitespace preserved, all-matching, empty
+    {
+        std::string_view sv = " \t hello world \r\n ";
+        StringHandler::fv_TrimStrView(sv);
+        TEST_CHECK_EQ("hello world", sv);
+
+        sv = "   \t\n";
+        StringHandler::fv_TrimStrView(sv);
+        TEST_CHECK(sv.empty());
+
+        sv = "";
+        StringHandler::fv_TrimStrView(sv);
+        TEST_CHECK(sv.empty());
+    }
+
+    // fstr_ReplaceAll: normal, no match, empty src, empty from, empty to, self-overlapping
     {
         TEST_CHECK_EQ("baz bar baz", StringHandler::fstr_ReplaceAll("foo bar foo", "foo", "baz"));
         TEST_CHECK_EQ("hello", StringHandler::fstr_ReplaceAll("hello", "xyz", "123"));
@@ -75,7 +137,7 @@ void fv_RunTestStringHandler() {
         TEST_CHECK_EQ("aaaa", StringHandler::fstr_ReplaceAll("aa", "a", "aa"));
     }
 
-    // 5. fstr_GetSubstringBetween: normal, nested, multiple pairs, unmatched, empty, custom delims
+    // fstr_GetSubstringBetween: normal, nested, multiple pairs, unmatched, empty, custom delims
     {
         TEST_CHECK_EQ(
             "GeForce RTX 2060",
@@ -95,7 +157,7 @@ void fv_RunTestStringHandler() {
         TEST_CHECK_EQ("16", StringHandler::fstr_GetSubstringBetween("CPU (16)", '(', ')'));
     }
 
-    // 6. fstr_Format: normal, empty format, nullptr format, large (>4096) string, percent literal
+    // fstr_Format: normal, empty format, nullptr format, large (>4096) string, percent literal
     {
         const char* kpc_EmptyFmt = "";
         TEST_CHECK_EQ("arch-42-12.35%", StringHandler::fstr_Format("%s-%d-%.2f%%", "arch", 42, 12.345));
@@ -108,7 +170,7 @@ void fv_RunTestStringHandler() {
         TEST_CHECK_EQ('!', str_Formatted.back());
     }
 
-    // 7. fui64_Utf8DisplayWidth: empty, ASCII, 3-byte UTF-8 box chars, 4-byte emoji
+    // fui64_Utf8DisplayWidth: empty, ASCII, 3-byte UTF-8 box chars, 4-byte emoji
     {
         TEST_CHECK_EQ(0U, StringHandler::fui64_Utf8DisplayWidth(""));
         TEST_CHECK_EQ(10U, StringHandler::fui64_Utf8DisplayWidth("Arch Linux"));
