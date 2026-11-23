@@ -87,13 +87,7 @@ std::string_view sfsv_ExtractCpuInfoValue(const std::string_view& krsv_Line) {
         return {};
     }
     std::string_view sv_Val = krsv_Line.substr(ui64_Colon + 1U);
-    // TODO: support left and right trim for string_view type
-    while (!sv_Val.empty() && (sv_Val.front() == ' ' || sv_Val.front() == '\t')) {
-        sv_Val.remove_prefix(1U);
-    }
-    while (!sv_Val.empty() && (sv_Val.back() == ' ' || sv_Val.back() == '\t' || sv_Val.back() == '\r')) {
-        sv_Val.remove_suffix(1U);
-    }
+    StringHandler::fv_TrimStrView(sv_Val);
     return sv_Val;
 }
 
@@ -104,6 +98,7 @@ bool sfb_ParseUint32(const std::string_view& krsv_Val, uint32_t& rui32_Out) {
     return errCode == std::errc{} && p_Ptr != kpc_Begin;
 }
 
+#if 0
 bool sfb_IsCpuSubdirName(const std::string_view& krsv_DirName) {
     if (!krsv_DirName.starts_with(ksv_CpuPrefix) || ksv_CpuPrefix.size() >= krsv_DirName.size()) {
         return false;
@@ -115,6 +110,7 @@ bool sfb_IsCpuSubdirName(const std::string_view& krsv_DirName) {
     }
     return true;
 }
+#endif
 
 } // namespace
 
