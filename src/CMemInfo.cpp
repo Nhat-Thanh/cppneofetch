@@ -1,5 +1,5 @@
 #include "CMemInfo.hpp"
-#include "utils/Definitions.hpp"
+#include "helpers/StringHandler.hpp"
 
 #include <charconv>
 #include <fstream>
@@ -32,9 +32,7 @@ bool sfb_ParseMemLineValue(std::string_view sv_Line,
         return false;
     }
     sv_Line.remove_prefix(sv_Key.size());
-    while (!sv_Line.empty() && (sv_Line.front() == ' ' || sv_Line.front() == '\t')) {
-        sv_Line.remove_prefix(1U);
-    }
+    StringHandler::fv_TrimStrView(sv_Line);
     uint64_t ui64_Val = 0ULL;
     const char* kpc_Begin = sv_Line.data();
     const char* kpc_End = sv_Line.data() + sv_Line.size();

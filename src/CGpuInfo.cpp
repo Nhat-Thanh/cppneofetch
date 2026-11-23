@@ -125,9 +125,7 @@ std::optional<uint32_t> sfopt_ReadAmdDpmMaxMhz(const std::string& krstr_Path) {
         }
         std::string_view sv_Val(krstr_Line);
         sv_Val.remove_prefix(ui64_Colon + 1U);
-        while (!sv_Val.empty() && sv_Val.front() == ' ') {
-            sv_Val.remove_prefix(1U);
-        }
+        StringHandler::fv_TrimStrView(sv_Val);
         uint32_t ui32_Mhz = 0U;
         const auto [p_Ptr, errCode] = std::from_chars(
             sv_Val.data(), sv_Val.data() + sv_Val.size(), ui32_Mhz, NumericBase::ki32_Decimal);
