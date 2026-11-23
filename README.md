@@ -99,7 +99,7 @@ Remember to comment other logos the file.
 ## TODO
 - [ ] Support multi-socket system.
 - [ ] Implement a separated pci bus information extractor.
-- [ ] Add left and right trim functions for string_view type.
+- [x] Add left and right trim functions for string_view type.
 - [ ] Move the `fb_LookupPciDevice` function from `gen-pci-ids-header.py` script generation to header/source files.
 - [ ] Implement a `fstr_GetSubstringBetween` but return string_view type.
 - [ ] Remove in-body returning.
